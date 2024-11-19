@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "app"
+version = "0.1.0"
+description = "FastAPI app"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+fastapi = "^0.115.5"
+uvicorn = "^0.32.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
