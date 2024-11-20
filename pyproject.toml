@@ -12,6 +12,9 @@ ruff = "^0.7.2"
 pre-commit = "^4.0.1"
 psycopg2 = "^2.9.10"
 requests = "^2.32.3"
+openai = "^1.54.5"
+nltk = "^3.9.1"
+python-dotenv = "^1.0.1"
 
 
 [build-system]
