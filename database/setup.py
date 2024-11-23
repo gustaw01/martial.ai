@@ -11,11 +11,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-logging.basicConfig(level=os.getenv("DATABASE_LOGGING_LEVEL", "INFO"),
-                    format="%(asctime)s - %(levelname)s - %(message)s",
-                    filename="database_setup.log", filemode="a")
+logging.basicConfig(
+    level=os.getenv("DATABASE_LOGGING_LEVEL", "INFO"), format="%(asctime)s - %(levelname)s - %(message)s", filename="database_setup.log", filemode="a"
+)
 
-download('punkt_tab')
+download("punkt_tab")
+
 
 def list_wikipedia_titles(search_query: str, n: int = 20, language: str = "en") -> list[str]:
     base_url = f"https://{language}.wikipedia.org/w/api.php"  # language arg to control what language is used
@@ -36,7 +37,7 @@ def list_wikipedia_titles(search_query: str, n: int = 20, language: str = "en") 
         return titles
     else:
         logging.error(f"Getting wiki titles for {search_query} returned code {response.status_code}")
-        return [] # ??? or exti
+        return []  # ??? or exti
 
 
 def get_wikipedia_text(page_title: str, language: str = "en") -> str | None:
@@ -77,44 +78,32 @@ def get_wikipedia_text(page_title: str, language: str = "en") -> str | None:
 
     else:
         logging.error(f"Getting wiki text for '{page_title}' page returned code {response.status_code}")
-    
+
 
 def get_embedding_from_sents(texts: list[str], model_name: str, client: OpenAI) -> list[list[float]]:
-
     try:
-        response = client.embeddings.create(
-            input=texts,
-            model=model_name
-        )
-        data = list(map(lambda x: x.embedding, response.data)) # converting response to list of lists of embeddings
-        logging.info(f"Got {len(data)} vectors from OpenAI API")  
+        response = client.embeddings.create(input=texts, model=model_name)
+        data = list(map(lambda x: x.embedding, response.data))  # converting response to list of lists of embeddings
+        logging.info(f"Got {len(data)} vectors from OpenAI API")
         return data
 
     except Exception as e:
         logging.error(f"An error occurred: {e} while getting OpenAI embeddings")
         return []
-    
-def batch_db_upload(embeddings: list[list[float]],  
-                    texts: list[str], 
-                    title: str, 
-                    language: str, 
-                    table_name: str, 
-                    index_in_doc: list[int],
-                    cur) -> None:
-    
+
+
+def batch_db_upload(
+    embeddings: list[list[float]], texts: list[str], title: str, language: str, table_name: str, index_in_doc: list[int], cur
+) -> None:
     if len(texts) != len(embeddings):
         logging.error(f"Text and embedding list lenght does not match on article '{title}'")
 
     columns = ["doc_title", "doc_langauge", "sentence", "embedding", "index_in_doc"]
-    data = list(zip([title]*len(texts),
-                    [language]*len(texts),
-                    texts,
-                    embeddings,
-                    index_in_doc))
+    data = list(zip([title] * len(texts), [language] * len(texts), texts, embeddings, index_in_doc))
     try:
         # Generate the query dynamically
-        columns_str = ', '.join(columns)
-        values_placeholder = ', '.join(['%s'] * len(columns))
+        columns_str = ", ".join(columns)
+        values_placeholder = ", ".join(["%s"] * len(columns))
         query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({values_placeholder})"
 
         # Execute the bulk insert
@@ -122,41 +111,33 @@ def batch_db_upload(embeddings: list[list[float]],
     except psycopg2.Error as e:
         logging.error(f"Error uploading bulk data: {e}")
 
+
 ARTS_PER_LANG = 1
 DATABASE_TABLE_NAME = "embeddings_test2"
 
-wiki_searches = [["Gwiezdne Wojny", "pl"],
-                 ["Star Wars", "en"],
-                 ["La Guerre des étoiles", "fr"],
-                 ["Star Wars", "tr"]]
+wiki_searches = [["Gwiezdne Wojny", "pl"], ["Star Wars", "en"], ["La Guerre des étoiles", "fr"], ["Star Wars", "tr"]]
 
-nltk_langmap = {
-    "pl": "polish",
-    "en": "english",
-    "fr": "french",
-    "tr": "turkish"
-}
+nltk_langmap = {"pl": "polish", "en": "english", "fr": "french", "tr": "turkish"}
 
 
 if __name__ == "__main__":
     logging.info(f"Starting database upload 🤞")
-    
+
     # database connection
     try:
         conn = psycopg2.connect(
-                dbname=os.getenv("PGDATABASE"),
-                user=os.getenv("PGUSER"),
-                password=os.getenv("PGPASSWORD"),
-                host=os.getenv("PGHOST"),
-                port=os.getenv("PGPORT", 5432)
-            )
+            dbname=os.getenv("PGDATABASE"),
+            user=os.getenv("PGUSER"),
+            password=os.getenv("PGPASSWORD"),
+            host=os.getenv("PGHOST"),
+            port=os.getenv("PGPORT", 5432),
+        )
 
         cursor = conn.cursor()
         logging.debug("Database connected")
     except psycopg2.Error as e:
         logging.error(f"Error connecting to the database \n{e}\nExiting..")
         exit()
-
 
     model_name = os.getenv("MODEL_NAME")
     logging.info(f"Using {model_name} OpenAI model")
@@ -173,25 +154,17 @@ if __name__ == "__main__":
 
             wiki_senetences = sent_tokenize(wiki_text, nltk_langmap[lang_art])
             # logging.debug(f"Got sentences from {title} page ({len(wiki_senetences)} sentences) in langauage '{language}'")
-            
+
             i = 0
             for text_batch in batched(wiki_senetences, 32):
-                embeddings_batch = get_embedding_from_sents(text_batch,
-                                                            model_name=model_name,
-                                                            client=openai_client)
+                embeddings_batch = get_embedding_from_sents(text_batch, model_name=model_name, client=openai_client)
 
-                inds_in_doc = list(range(i, i+len(text_batch))) # counting sentences in document
+                inds_in_doc = list(range(i, i + len(text_batch)))  # counting sentences in document
                 i += 32
 
-                batch_db_upload(embeddings_batch,
-                                text_batch,
-                                title,
-                                lang_art,
-                                DATABASE_TABLE_NAME,
-                                inds_in_doc,
-                                cursor)
-                conn.commit() # commit to actually upload the data
-                
+                batch_db_upload(embeddings_batch, text_batch, title, lang_art, DATABASE_TABLE_NAME, inds_in_doc, cursor)
+                conn.commit()  # commit to actually upload the data
+
             logging.debug(f"Finishined uploading '{title}' page in langauage '{language}'")
 
     logging.info(f"Finishined uploading data 🚀")
