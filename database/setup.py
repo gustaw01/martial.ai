@@ -99,16 +99,18 @@ def batch_db_upload(embeddings: list[list[float]],
                     title: str, 
                     language: str, 
                     table_name: str, 
+                    index_in_doc: list[int],
                     cur) -> None:
     
     if len(texts) != len(embeddings):
         logging.error(f"Text and embedding list lenght does not match on article '{title}'")
 
-    columns = ["doc_title", "doc_langauge", "sentence", "embedding"]
+    columns = ["doc_title", "doc_langauge", "sentence", "embedding", "index_in_doc"]
     data = list(zip([title]*len(texts),
                     [language]*len(texts),
                     texts,
-                    embeddings))
+                    embeddings,
+                    index_in_doc))
     try:
         # Generate the query dynamically
         columns_str = ', '.join(columns)
@@ -120,8 +122,8 @@ def batch_db_upload(embeddings: list[list[float]],
     except psycopg2.Error as e:
         logging.error(f"Error uploading bulk data: {e}")
 
-ARTS_PER_LANG = 20
-DATABASE_TABLE_NAME = "embeddings_test"
+ARTS_PER_LANG = 1
+DATABASE_TABLE_NAME = "embeddings_test2"
 
 wiki_searches = [["Gwiezdne Wojny", "pl"],
                  ["Star Wars", "en"],
@@ -171,17 +173,22 @@ if __name__ == "__main__":
 
             wiki_senetences = sent_tokenize(wiki_text, nltk_langmap[lang_art])
             # logging.debug(f"Got sentences from {title} page ({len(wiki_senetences)} sentences) in langauage '{language}'")
-
+            
+            i = 0
             for text_batch in batched(wiki_senetences, 32):
                 embeddings_batch = get_embedding_from_sents(text_batch,
                                                             model_name=model_name,
                                                             client=openai_client)
+
+                inds_in_doc = list(range(i, i+len(text_batch))) # counting sentences in document
+                i += 32
 
                 batch_db_upload(embeddings_batch,
                                 text_batch,
                                 title,
                                 lang_art,
                                 DATABASE_TABLE_NAME,
+                                inds_in_doc,
                                 cursor)
                 conn.commit() # commit to actually upload the data
                 
