@@ -11,19 +11,15 @@ logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 
 
-class MessageCreate(BaseModel):
+class Message(BaseModel):
     message: str
     rating: float
     title: str
     author: str
 
 
-class MessageResponse(BaseModel):
+class MessageResponse(Message):
     id: int
-    title: str
-    rating: float
-    message: str
-    author: str
     sent_at: str
 
 
@@ -60,7 +56,7 @@ async def main_route():
 
 
 @app.post("/history")
-async def save_history_element(msg: MessageCreate):
+async def save_history_element(msg: Message):
     conn = get_db_connection()
     cursor = conn.cursor()
 
