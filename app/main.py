@@ -1,7 +1,7 @@
 import os
 import logging
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from models import Message, MessageResponse
 import psycopg2
 from dotenv import load_dotenv
 from http import HTTPStatus
@@ -10,24 +10,7 @@ from typing import List, Optional
 logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 
-
-class Message(BaseModel):
-    message: str
-    rating: float
-    title: str
-    author: str
-
-
-class MessageResponse(Message):
-    id: int
-    sent_at: str
-
-
 app = FastAPI()
-
-
-class TextPayload(BaseModel):
-    text: str
 
 
 def get_db_connection():
