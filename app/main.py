@@ -101,7 +101,6 @@ async def get_history_by_author_or_id(
                     params.append(message_id)
 
                 query += " AND ".join(conditions)
-                print(query)
                 cursor.execute(query, tuple(params))
                 messages = cursor.fetchall()
 
@@ -124,6 +123,9 @@ async def get_history_by_author_or_id(
                 ]
 
                 return result
+
+    except HTTPException as http_error:
+        raise http_error
 
     except psycopg2.DatabaseError as db_error:
         raise HTTPException(
@@ -153,6 +155,9 @@ async def delete_history_element(message_id: int):
         conn.commit()
 
         return "Deleted successfully."
+
+    except HTTPException as http_error:
+        raise http_error
 
     except Exception as error:
         conn.rollback()
