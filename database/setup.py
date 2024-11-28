@@ -8,6 +8,7 @@ import psycopg2
 import logging
 from openai import OpenAI
 from dotenv import load_dotenv
+from http import HTTPStatus
 
 load_dotenv()
 
@@ -30,7 +31,7 @@ def list_wikipedia_titles(search_query: str, n: int = 20, language: str = "en") 
 
     response = requests.get(base_url, params=params)
 
-    if response.status_code == 200:
+    if response.status_code == HTTPStatus.OK:
         data = response.json()
         titles = [(language, item["title"]) for item in data.get("query", {}).get("search", [])]
         logging.debug(f"Found {len(titles)} titles for {search_query}")
@@ -54,7 +55,7 @@ def get_wikipedia_text(page_title: str, language: str = "en") -> str | None:
 
     response = requests.get(url, params=params)
 
-    if response.status_code == 200:
+    if response.status_code == HTTPStatus.OK:
         data = response.json()
         pages = data.get("query", {}).get("pages", {})
         for _, page_content in pages.items():
@@ -93,7 +94,7 @@ def get_embedding_from_sents(texts: list[str], model_name: str, client: OpenAI) 
 
 
 def batch_db_upload(
-    embeddings: list[list[float]], texts: list[str], title: str, language: str, table_name: str, index_in_doc: list[int], cur
+    embeddings: list[list[float]], texts: list[str], title: str, language: str, index_in_doc: list[int], table_name: str, cur
 ) -> None:
     if len(texts) != len(embeddings):
         logging.error(f"Text and embedding list lenght does not match on article '{title}'")
@@ -112,7 +113,7 @@ def batch_db_upload(
         logging.error(f"Error uploading bulk data: {e}")
 
 
-ARTS_PER_LANG = 1
+ARTS_PER_LANG = 32
 DATABASE_TABLE_NAME = "embeddings_test2"
 
 wiki_searches = [["Gwiezdne Wojny", "pl"], ["Star Wars", "en"], ["La Guerre des étoiles", "fr"], ["Star Wars", "tr"]]
@@ -150,19 +151,20 @@ if __name__ == "__main__":
             logging.debug(f"Analyzing {title} page in langauage '{language}'")
 
             wiki_text = get_wikipedia_text(title, lang_art)
-            # logging.debug(f"Got text from {title} page ({len(wiki_text)} chars) in langauage '{language}'")
+            logging.debug(f"Got text from {title} page ({len(wiki_text)} chars) in langauage '{language}'")
 
             wiki_senetences = sent_tokenize(wiki_text, nltk_langmap[lang_art])
-            # logging.debug(f"Got sentences from {title} page ({len(wiki_senetences)} sentences) in langauage '{language}'")
+            logging.debug(f"Got sentences from {title} page ({len(wiki_senetences)} sentences) in langauage '{language}'")
 
-            i = 0
+            sentence_ind = 0
             for text_batch in batched(wiki_senetences, 32):
                 embeddings_batch = get_embedding_from_sents(text_batch, model_name=model_name, client=openai_client)
 
-                inds_in_doc = list(range(i, i + len(text_batch)))  # counting sentences in document
-                i += 32
+                # counting sentences in document
+                sentences_in_doc = list(range(sentence_ind, sentence_ind + len(text_batch)))
+                sentence_ind += len(text_batch)
 
-                batch_db_upload(embeddings_batch, text_batch, title, lang_art, DATABASE_TABLE_NAME, inds_in_doc, cursor)
+                batch_db_upload(embeddings_batch, text_batch, title, lang_art, sentences_in_doc, DATABASE_TABLE_NAME, cursor)
                 conn.commit()  # commit to actually upload the data
 
             logging.debug(f"Finishined uploading '{title}' page in langauage '{language}'")
