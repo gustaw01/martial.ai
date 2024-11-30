@@ -4,7 +4,7 @@ import os
 from openai import OpenAI
 
 
-def find_k_nearest(vector: list[float], k: int, table_name: int = "embeddings") -> list[list[str, float]]:
+def find_k_nearest(vector: list[float], k: int, lang_to_exclue: str|None = None) -> list[list[str, float]]:
     """
     Function to find K closest vectors in the database given a vector
 
@@ -14,7 +14,7 @@ def find_k_nearest(vector: list[float], k: int, table_name: int = "embeddings") 
     """
 
     if len(vector) != 1536:
-        raise ValueError("Vector size")
+        raise ValueError("Vector size error")
 
     # database connection
     try:
@@ -29,15 +29,29 @@ def find_k_nearest(vector: list[float], k: int, table_name: int = "embeddings") 
         cursor = conn.cursor()
         logging.debug("Database connected")
     except psycopg2.Error as e:
-        logging.error(f"Error connecting to the database \n{e}\nExiting..")
+        logging.error(f"Error connecting to the database \n{e}\n")
+
+    if lang_to_exclue:
+        where_stantment = f"WHERE doc_langauge != %s"
+        query_params = [str(vector), lang_to_exclue, str(k)]
+    else:
+        where_stantment = ""
+        query_params = [str(vector), str(k)]
 
     query = f"""
-        SELECT * FROM {table_name}
-        ORDER BY embedding <=> %s
+        SELECT 
+            doc_title, 
+            doc_langauge AS doc_language,
+            sentence, 
+            index_in_doc,
+            embedding <=> %s as cosine_distance
+        FROM embeddings
+        {where_stantment}
+        ORDER BY cosine_distance
         LIMIT %s 
     """
 
-    cursor.execute(query, [str(vector), str(k)])
+    cursor.execute(query, query_params)
     rows = cursor.fetchall()
 
     return rows
@@ -46,10 +60,13 @@ def find_k_nearest(vector: list[float], k: int, table_name: int = "embeddings") 
 if __name__ == "__main__":
     openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     model_name = os.getenv("MODEL_NAME")
-    #  2015 roku odbyła się premiera filmu ''Ostatni Jedi'' (2017) oraz ''Skywalker.
-    sent_to_compare = "I 2015 fandt premieren på filmene 'The Last Jedi' (2017) og 'Rise of Skywalker' sted."
+    #  
+    sent_to_compare = "2015 saw the premiere of ''The Last Jedi'' (2017) and ''The Rise of Skywalker."
     response = openai_client.embeddings.create(input=sent_to_compare, model=model_name)
 
     vector = response.data[0].embedding
 
-    test = find_k_nearest(vector, 5, "embeddings_test2")
+    test = find_k_nearest(vector, 5, "en")
+    test2 = find_k_nearest(vector, 5)
+
+    pass
