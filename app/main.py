@@ -85,9 +85,6 @@ async def read_docx(
             "author": author,
         }
 
-    except HTTPException as http_error:
-        raise http_error
-
     except psycopg2.Error as e:
         logging.error(f"Database operation failed: {e}")
         raise HTTPException(
