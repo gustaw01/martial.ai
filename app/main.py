@@ -134,7 +134,10 @@ async def save_history_element(msg: Message):
         }
     except psycopg2.Error as e:
         logging.error(f"Database operation failed: {e}")
-        raise HTTPException(status_code=500, detail="Database operation failed")
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            detail="Database operation failed",
+        )
     finally:
         cursor.close()
         conn.close()
@@ -213,7 +216,9 @@ async def delete_history_element(message_id: int):
         message = cursor.fetchone()
 
         if not message:
-            raise HTTPException(status_code=404, detail="Message not found")
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND.value, detail="Message not found"
+            )
 
         cursor.execute("DELETE FROM messages WHERE id = %s;", (message_id,))
         conn.commit()
