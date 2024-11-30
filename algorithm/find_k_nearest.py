@@ -1,10 +1,9 @@
 import psycopg2
 import logging
 import os
-from openai import OpenAI
 
 
-def find_k_nearest(vector: list[float], k: int, lang_to_exclue: str|None = None) -> list[list[str, float]]:
+def find_k_nearest(vector: list[float], k: int, lang_to_exclue: str|None = None) -> list:
     """
     Function to find K closest vectors in the database given a vector
 
@@ -13,7 +12,7 @@ def find_k_nearest(vector: list[float], k: int, lang_to_exclue: str|None = None)
 
     """
 
-    if len(vector) != 1536:
+    if len(vector) != int(os.getenv("VECTOR_LENGTH")):
         raise ValueError("Vector size error")
 
     # database connection
@@ -55,18 +54,3 @@ def find_k_nearest(vector: list[float], k: int, lang_to_exclue: str|None = None)
     rows = cursor.fetchall()
 
     return rows
-
-
-if __name__ == "__main__":
-    openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    model_name = os.getenv("MODEL_NAME")
-    #  
-    sent_to_compare = "2015 saw the premiere of ''The Last Jedi'' (2017) and ''The Rise of Skywalker."
-    response = openai_client.embeddings.create(input=sent_to_compare, model=model_name)
-
-    vector = response.data[0].embedding
-
-    test = find_k_nearest(vector, 5, "en")
-    test2 = find_k_nearest(vector, 5)
-
-    pass
