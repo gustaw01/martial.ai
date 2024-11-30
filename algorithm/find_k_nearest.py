@@ -1,9 +1,7 @@
-import psycopg2
-import logging
-import os
+from psycopg2.extensions import connection
 
 
-def find_k_nearest(vector: list[float], k: int, lang_to_exclue: str|None = None) -> list:
+def find_k_nearest(vector: list[float], n_articles: int, conn: connection, vec_lenght: int, lang_to_exclue: str | None = None) -> list:
     """
     Function to find K closest vectors in the database given a vector
 
@@ -12,30 +10,18 @@ def find_k_nearest(vector: list[float], k: int, lang_to_exclue: str|None = None)
 
     """
 
-    if len(vector) != int(os.getenv("VECTOR_LENGTH")):
+    if len(vector) != vec_lenght:
         raise ValueError("Vector size error")
 
-    # database connection
-    try:
-        conn = psycopg2.connect(
-            dbname=os.getenv("PGDATABASE"),
-            user=os.getenv("PGUSER"),
-            password=os.getenv("PGPASSWORD"),
-            host=os.getenv("PGHOST"),
-            port=os.getenv("PGPORT", 5432),
-        )
-
-        cursor = conn.cursor()
-        logging.debug("Database connected")
-    except psycopg2.Error as e:
-        logging.error(f"Error connecting to the database \n{e}\n")
+    if not isinstance(vector, list) or not isinstance(vector[0], float):
+        raise ValueError("Vector must be of type list[float]")
 
     if lang_to_exclue:
         where_stantment = f"WHERE doc_langauge != %s"
-        query_params = [str(vector), lang_to_exclue, str(k)]
+        query_params = [str(vector), lang_to_exclue, str(n_articles)]
     else:
         where_stantment = ""
-        query_params = [str(vector), str(k)]
+        query_params = [str(vector), str(n_articles)]
 
     query = f"""
         SELECT 
@@ -50,7 +36,13 @@ def find_k_nearest(vector: list[float], k: int, lang_to_exclue: str|None = None)
         LIMIT %s 
     """
 
-    cursor.execute(query, query_params)
-    rows = cursor.fetchall()
+    try:
+        cur = conn.cursor()
+        cur.execute(query, query_params)
+        rows = cur.fetchall()
+    except Exception as e:
+        print(f"Unexpected exception when quering the database: {e}")
+    finally:
+        cur.close()
 
     return rows
