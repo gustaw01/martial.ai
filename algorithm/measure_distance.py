@@ -13,10 +13,8 @@ def find_k_nearest(vector: list[float], k: int, table_name: int = "embeddings") 
 
     """
 
-    
-    if len(vector) != 1536: 
+    if len(vector) != 1536:
         raise ValueError("Vector size")
-
 
     # database connection
     try:
@@ -42,7 +40,8 @@ def find_k_nearest(vector: list[float], k: int, table_name: int = "embeddings") 
     cursor.execute(query, [str(vector), str(k)])
     rows = cursor.fetchall()
 
-    return rows 
+    return rows
+
 
 if __name__ == "__main__":
     openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
