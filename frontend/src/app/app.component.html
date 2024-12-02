@@ -1,5 +1,12 @@
-<app-header  />
 <div class="container">
- <router-outlet />
+    <div class="history-wrapper">
+        <app-history />
+    </div>
+    <div class="content-wrapper">
+        <app-header  />
+        <div class="content">
+            <router-outlet />
+        </div>
+        <app-footer />
+    </div>
 </div>
-<app-footer />

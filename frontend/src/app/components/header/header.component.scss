@@ -1,0 +1,15 @@
+header {
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    text-align: center;
+    vertical-align: middle;
+    height: 5vh;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+    .header-content {
+        display: flex;
+        justify-content: first baseline;
+        align-items: center;
+        height: 100%;
+    }
+}

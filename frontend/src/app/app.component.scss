@@ -1,5 +1,34 @@
 .container {
+  flex: 5;
   display: flex;
-  width: 100%;
-  height: 90vh;
+  flex-direction: row;
+  height: 100vh;
+}
+
+.history-wrapper {
+  background-color: var(--history-background-color);
+  color: var(--text-color);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.content-wrapper {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  flex: 4;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  .content {
+    display: flex;
+    padding: 10px;
+    justify-content: left;
+    height: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
 }
