@@ -207,7 +207,9 @@ async def save_history_element(msg: Message):
 
 
 @app.get("/history", response_model=List[MessageResponse])
-async def get_history_by_author_or_id(author: Optional[str] = None, message_id: Optional[int] = None):
+async def get_history_by_author_or_id(
+    author: Optional[str] = None, message_id: Optional[int] = None
+):
     if not author and not message_id:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST.value,
@@ -277,7 +279,9 @@ async def delete_history_element(message_id: int):
         message = cursor.fetchone()
 
         if not message:
-            raise HTTPException(status_code=HTTPStatus.NOT_FOUND.value, detail="Message not found")
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND.value, detail="Message not found"
+            )
 
         cursor.execute("DELETE FROM messages WHERE id = %s;", (message_id,))
         conn.commit()
@@ -289,7 +293,9 @@ async def delete_history_element(message_id: int):
 
     except Exception as error:
         conn.rollback()
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, detail=str(error))
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, detail=str(error)
+        )
 
     finally:
         cursor.close()
