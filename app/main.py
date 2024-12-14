@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from http import HTTPStatus
 from typing import List, Optional
 from docx import Document
+from pypdf import PdfReader
+from io import BytesIO
 
 logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
@@ -37,6 +39,70 @@ def get_db_connection():
 @app.get("/index")
 async def main_route():
     return {"Martial": "AI"}
+
+
+@app.post("/history/pdf")
+async def read_pdf(
+    title: str = Form(...),
+    rating: float = Form(...),
+    author: str = Form(...),
+    file: UploadFile = File(...),
+):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if not file.filename.endswith(".pdf"):
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST.value,
+            detail="Uploaded file must be a PDF file.",
+        )
+
+    try:
+        file_content = await file.read()
+        pdf_file = BytesIO(file_content)
+
+        reader = PdfReader(pdf_file)
+        text = ""
+        text += "\n".join([page.extract_text() for page in reader.pages])
+
+        if not text.strip():
+            raise HTTPException(
+                status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
+                detail="No readable text found in the PDF file.",
+            )
+
+        cursor.execute(
+            """
+            INSERT INTO messages (title, rating, message, author)
+            VALUES (%s, %s, %s, %s)
+            RETURNING id, sent_at
+            """,
+            (title, rating, text, author),
+        )
+        conn.commit()
+        message_id, sent_at = cursor.fetchone()
+
+        return {
+            "id": message_id,
+            "sent_at": sent_at,
+            "title": title,
+            "rating": rating,
+            "message": text,
+            "author": author,
+        }
+
+    except psycopg2.Error as e:
+        logging.error(f"Database operation failed: {e}")
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            detail="Database operation failed",
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+            detail=f"Error processing the PDF file: {str(e)}",
+        )
 
 
 @app.post("/history/docx")
@@ -141,9 +207,7 @@ async def save_history_element(msg: Message):
 
 
 @app.get("/history", response_model=List[MessageResponse])
-async def get_history_by_author_or_id(
-    author: Optional[str] = None, message_id: Optional[int] = None
-):
+async def get_history_by_author_or_id(author: Optional[str] = None, message_id: Optional[int] = None):
     if not author and not message_id:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST.value,
@@ -213,9 +277,7 @@ async def delete_history_element(message_id: int):
         message = cursor.fetchone()
 
         if not message:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND.value, detail="Message not found"
-            )
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND.value, detail="Message not found")
 
         cursor.execute("DELETE FROM messages WHERE id = %s;", (message_id,))
         conn.commit()
@@ -227,9 +289,7 @@ async def delete_history_element(message_id: int):
 
     except Exception as error:
         conn.rollback()
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, detail=str(error)
-        )
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value, detail=str(error))
 
     finally:
         cursor.close()
