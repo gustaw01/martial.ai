@@ -1,6 +1,7 @@
 <div class="history">
-    <h3>Historia</h3>
-    <ul>
-        <li>TODO: history</li>
-    </ul>
+    <h2>Historia</h2>
+    <div *ngFor="let item of history" routerLink="/about" class="history-item">
+        <h3>{{ item.title }}</h3>
+        <p>Rating: {{ item.rating }}</p>
+    </div>
 </div>

@@ -3,12 +3,10 @@
     flex-direction: column;
     padding: 10px;
     height: 100%;
-    
+}
 
-    ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-        overflow: auto;
-    }
+.history-item {
+    flex-direction: row;
+    padding: 5px;
+    border-bottom: 1px solid #fff;
 }
