@@ -1,6 +1,6 @@
 <div class="history">
     <h2>Historia</h2>
-    <div *ngFor="let item of history" routerLink="/about" class="history-item">
+    <div *ngFor="let item of history" routerLink="/history/{{ item.id }}" class="history-item">
         <h3>{{ item.title }}</h3>
         <p>Rating: {{ item.rating }}</p>
     </div>
