@@ -7,7 +7,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Optional
 
 
-
 def create_embeddings(text: str, language: str, model_name: str, client: OpenAI) -> Optional[list[float]]:
     """
     Function to create embeddings from text
@@ -42,6 +41,7 @@ def create_embeddings(text: str, language: str, model_name: str, client: OpenAI)
 def create_embeddings_multithreading(text: str, language: str, model_name: str, client: OpenAI) -> Optional[List[float]]:
     """
     Function to create embeddings from text with multithreading support.
+    Returns a list of floats (vectors) or None if error happened
 
     Args:
         text (str): The text to be embedded.
@@ -63,7 +63,7 @@ def create_embeddings_multithreading(text: str, language: str, model_name: str, 
             return [(batch_index + i, embedding) for i, embedding in enumerate(data)]
         except (OpenAIError, AttributeError) as e:
             print(f"Error fetching embeddings for batch {batch_index}: {e}")
-            return []
+            return None
 
     with ThreadPoolExecutor() as executor:
         futures = {executor.submit(fetch_embeddings, text_batch, i * 8): i for i, text_batch in enumerate(batched(sentences, 8))}
@@ -72,5 +72,7 @@ def create_embeddings_multithreading(text: str, language: str, model_name: str, 
             result = future.result()
             if result:
                 embeddings.extend(result)
+            else:
+                return None  # this is so when an error has happend in fetch_embedding
 
     return [embedding for _, embedding in sorted(embeddings, key=lambda x: x[0])]

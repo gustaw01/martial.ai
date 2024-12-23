@@ -15,15 +15,18 @@ dotenv.load_dotenv()
 from find_k_nearest import find_k_nearest
 from create_embeddings import create_embeddings, create_embeddings_multithreading
 
-def cosine_similarity(v1,v2):
+
+def cosine_similarity(v1, v2):
     "compute cosine similarity of v1 to v2: (v1 dot v2)/{||v1||*||v2||)"
     sumxx, sumxy, sumyy = 0, 0, 0
     for i in range(len(v1)):
-        x = v1[i]; y = v2[i]
-        sumxx += x*x
-        sumyy += y*y
-        sumxy += x*y
-    return sumxy/math.sqrt(sumxx*sumyy)
+        x = v1[i]
+        y = v2[i]
+        sumxx += x * x
+        sumyy += y * y
+        sumxy += x * y
+    return sumxy / math.sqrt(sumxx * sumyy)
+
 
 TEST_TEXT = """
 The cat jumped over the tall wooden fence.
@@ -191,12 +194,17 @@ def test_create_embeddings(text, language, model_name):
 
     print(f"Single-threaded time: {single_thread_time:.4f}s")
     print(f"Multi-threaded time: {multi_thread_time:.4f}s")
-    assert len(single_thread_result) == n_sentences 
-    assert len(multi_thread_result) == n_sentences 
+    assert len(single_thread_result) == n_sentences
+    assert len(multi_thread_result) == n_sentences
     assert len(single_thread_result[0]) == len(multi_thread_result[0])
 
     # checks if the order is the same
     for i, st_embedding in enumerate(single_thread_result):
         the_same = cosine_similarity(st_embedding, multi_thread_result[i])
-        other = cosine_similarity(st_embedding, multi_thread_result[i-1])
-        assert the_same > other
+        other = cosine_similarity(st_embedding, multi_thread_result[i - 1])
+        # the_same is the distance between embedding from single threading and multi threading at the same index
+        # this value should be very very very close to one (or rarely 1.0), like 0.9999999....
+        # other is the distance between single threading embedding and some other multi threading embedding,
+        # which should smaller value than the_same
+        print(the_same, other)
+        assert other < the_same
