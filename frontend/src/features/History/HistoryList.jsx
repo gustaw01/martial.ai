@@ -1,6 +1,7 @@
 import { useGetHistoriesQuery } from "./historyApiSlice";
 import AlertError from "../../components/AlertError";
 import History from "./History";
+import Loading from "../../components/Loading";
 
 const HistoryList = () => {
     const {
@@ -18,7 +19,7 @@ const HistoryList = () => {
     let content
 
     if (isLoading) {
-        content = <h3>Ładowanie z API</h3>
+        content = <Loading />
     }
 
     if (isError) {

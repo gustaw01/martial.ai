@@ -1,6 +1,7 @@
 import { useGetHistoriesQuery } from "./historyApiSlice";
 import AlertError from "../../components/AlertError";
 import { Link } from "react-router-dom";
+import Loading from "../../components/Loading";
 
 const BasicHistoryList = () => {
     const {
@@ -18,7 +19,7 @@ const BasicHistoryList = () => {
     let content
 
     if (isLoading) {
-        content = <h3>Ładowanie danych z API</h3>
+        content = <Loading />
     }
 
     if (isError) {
