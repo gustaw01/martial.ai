@@ -5,8 +5,11 @@ import Login from './features/auth/Login'
 import DashHome from './components/DashHome'
 import DashLayout from './components/DashLayout'
 import HistoryList from './features/History/HistoryList'
+import AddHistoryByFile from './features/History/AddHistoryByFile'
 
 import './App.css'
+import './input.css'
+import AddHistory from './features/History/AddHistory'
 
 function App() {
 
@@ -18,6 +21,9 @@ function App() {
 
         <Route path="dash" element={ <DashLayout /> }>
           <Route index element={ <DashHome /> } />
+
+          <Route path="history/new" element={ <AddHistory />} />
+          <Route path="history/new-file" element={ <AddHistoryByFile /> } />
           <Route path="history" element={ <HistoryList/> } />
         </Route>
       </Route>

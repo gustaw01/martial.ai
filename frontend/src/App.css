@@ -1,3 +1,4 @@
+
 #root {
   margin: 0;
   padding: 0;
@@ -6,11 +7,13 @@
   flex-direction: column;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
 }
+
+
 
 /* Dash layout styles */
 
@@ -21,23 +24,18 @@
   height: 100%;
 }
 
-.main-container > div {
-  border: 1px solid #e0e0e0;
-}
-
 .history-list {
   display: flex;
   flex-direction: column;
   flex: 1;
   height: 100%;
   padding: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .main-content {
   display: flex;
   flex-direction: column;
-  flex: 4;
+  flex: 5;
   height: 100%;
   padding: 0;
 }
@@ -47,30 +45,18 @@
 .header {
   display: flex;
   align-items: center;
-  color: white;
-  padding: 10px;
-  border: 1px solid #e0e0e0;
-  height: 5vh;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .dash-content {
   display: flex;
   flex: 1;
-  padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  background-color: #e0e0e0;
-  color: black;
+  text-align: center;
 }
 
 .footer {
   display: flex;
   align-items: center;
   color: white;
-  padding: 10px;
-  border: 1px solid #e0e0e0;
-  height: 5vh;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .footer-text {
@@ -84,8 +70,15 @@
   flex-direction: column;
   flex: 1;
   height: 100%;
-  padding: 5px;
-  margin: 5px;
+  padding: 10px;
+}
+
+.history-form {
+  margin: 10px auto;
+}
+
+.history-table {
+  margin: 10px auto;
 }
 
 /* Dash navigation */

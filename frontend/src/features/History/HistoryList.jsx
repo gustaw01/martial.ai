@@ -32,7 +32,7 @@ const HistoryList = () => {
             : null
 
         content = (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto history-table">
                 <table className="table">
                     <thead>
                     <tr>

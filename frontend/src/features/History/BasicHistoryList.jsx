@@ -27,15 +27,17 @@ const BasicHistoryList = () => {
 
     if (isSuccess) {
         const historyItems = Object.values(histories.entities).map(history => (
-            <div key={history.id} className="overflow-x-auto">
-                {history.title} <br />
-                Ocena: {history.rating}
-                <hr style={{ color: "white" }} />
-            </div>
+            <>
+                <div key={history.id} className="card bg-base-300 rounded-box grid h-20 place-items-center">
+                    {history.title} <br />
+                    Ocena: {history.rating}
+                </div>
+                <div className="divider divider-primary"></div>
+            </>
         ));
 
         content = (
-            <div className="overflow-x-auto">
+            <div className="flex w-full flex-col">
                 { historyItems }
             </div>
         )

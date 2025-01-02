@@ -1,7 +1,17 @@
+import { Link } from "react-router-dom"
+
 const DashHome = () => {
     return (
-        <div className="home">
-            <h1 className="">Witaj w systemie MARTIAL.AI!</h1>
+        <div className="hero bg-base-200 min-h-screen">
+            <div className="hero-content text-center">
+                <div className="max-w-md">
+                    <h1 className="text-5xl font-bold">Witaj w Martial.AI</h1>
+                    <p className="py-6">
+                        W systemie do weryfikacji prac pod kątem plagiatu. 
+                    </p>
+                    <Link to="/dash/history/new" className="btn btn-primary">Zweryfikuj pracę</Link>
+                </div>
+            </div>
         </div>
     )
 }
