@@ -1,6 +1,6 @@
 import { useGetHistoriesQuery } from "./historyApiSlice";
 import AlertError from "../../components/AlertError";
-import History from "./History";
+import { Link } from "react-router-dom";
 
 const BasicHistoryList = () => {
     const {
@@ -27,19 +27,16 @@ const BasicHistoryList = () => {
 
     if (isSuccess) {
         const historyItems = Object.values(histories.entities).map(history => (
-            <>
-                <div key={history.id} className="card bg-base-300 rounded-box grid h-20 place-items-center">
-                    {history.title} <br />
-                    Ocena: {history.rating}
-                </div>
-                <div className="divider divider-primary"></div>
-            </>
+            <div key={history.id} className="indicator">
+                <span className="indicator-item badge badge-secondary">{history.rating}</span>
+                <Link to="/dash/history"><li className="btn btn-ghost" style={{width: "100%"}}>{history.title}</li></Link>
+            </div>
         ));
 
         content = (
-            <div className="flex w-full flex-col">
+            <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
                 { historyItems }
-            </div>
+            </ul>
         )
     }
 
