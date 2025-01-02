@@ -31,6 +31,7 @@
   flex: 1;
   height: 100%;
   padding: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .main-content {
@@ -50,12 +51,16 @@
   padding: 10px;
   border: 1px solid #e0e0e0;
   height: 5vh;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .dash-content {
   display: flex;
   flex: 1;
   padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background-color: #e0e0e0;
+  color: black;
 }
 
 .footer {
@@ -65,8 +70,12 @@
   padding: 10px;
   border: 1px solid #e0e0e0;
   height: 5vh;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+.footer-text {
+  margin: 0 auto;
+}
 
 /* History list */
 
@@ -77,4 +86,10 @@
   height: 100%;
   padding: 5px;
   margin: 5px;
+}
+
+/* Dash navigation */
+
+.navigation-item {
+  padding: 10px;
 }

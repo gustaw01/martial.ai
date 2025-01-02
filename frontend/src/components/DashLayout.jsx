@@ -1,13 +1,13 @@
 import { Outlet } from "react-router-dom"
 import DashHeader from "./DashHeader"
 import DashFooter from "./DashFooter"
-import HistoryList from "../features/History/HistoryList"
+import BasicHistoryList from "../features/History/BasicHistoryList"
 
 const DashLayout = () => {
     return (
         <div className="main-container">
             <div className="history-list">
-                <HistoryList />
+                <BasicHistoryList />
             </div>
             <div className="main-content">
                 <DashHeader />
