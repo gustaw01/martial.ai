@@ -1,9 +1,9 @@
 const DashFooter = () => {
     return (
         <footer className="footer">
-            <span className="text-muted">
+            <div className="footer-text">
                 MartialAI 2024 ©
-            </span>
+            </div>
         </footer>
     )
 }

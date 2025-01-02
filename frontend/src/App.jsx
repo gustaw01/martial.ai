@@ -4,6 +4,7 @@ import Home from './components/Home'
 import Login from './features/auth/Login'
 import DashHome from './components/DashHome'
 import DashLayout from './components/DashLayout'
+import HistoryList from './features/History/HistoryList'
 
 import './App.css'
 
@@ -17,6 +18,7 @@ function App() {
 
         <Route path="dash" element={ <DashLayout /> }>
           <Route index element={ <DashHome /> } />
+          <Route path="history" element={ <HistoryList/> } />
         </Route>
       </Route>
     </Routes>
