@@ -6,6 +6,7 @@ import DashHome from './components/DashHome'
 import DashLayout from './components/DashLayout'
 import HistoryList from './features/History/HistoryList'
 import AddHistoryByFile from './features/History/AddHistoryByFile'
+import HistoryView from './features/History/HistoryView'
 
 import './App.css'
 import './input.css'
@@ -25,6 +26,7 @@ function App() {
           <Route path="history/new" element={ <AddHistory />} />
           <Route path="history/new-file" element={ <AddHistoryByFile /> } />
           <Route path="history" element={ <HistoryList/> } />
+          <Route path="history/:historyId" element={ <HistoryView />} />
         </Route>
       </Route>
     </Routes>

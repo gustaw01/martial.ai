@@ -6,15 +6,14 @@ const History = ({id = null}) => {
     const history = useSelector(state => id ? selectHistoryById(state, id) : null)
     const navigate = useNavigate()
 
+    const handleEdit = () => navigate(`/dash/history/${id}`)
+
     if (!history) {
         console.error("Nie znaleziono wpisu dla id:", id);
         return <div>Wpis nie istnieje</div>;
     }
 
     if (history) {
-        const handleEdit = () => navigate(`/dash`) //navigate(`/dash/history/${id}`)
-        // console.log(history)
-
         return (
             <tr className="bg-base-200">
                 <td>
