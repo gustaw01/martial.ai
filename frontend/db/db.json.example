@@ -1,0 +1,195 @@
+{
+  "history": [
+    {
+      "id": "1",
+      "title": "Sample Title 1",
+      "rating": 85,
+      "message": "This is a sample message content from the first entry.",
+      "author": "Author1",
+      "sent_at": "2023-12-01T10:00:00Z"
+    },
+    {
+      "id": "2",
+      "title": "Sample Title 2",
+      "rating": 90,
+      "message": "This is a sample message content from the second entry.",
+      "author": "Author2",
+      "sent_at": "2023-12-02T15:30:00Z"
+    },
+    {
+      "id": "3",
+      "title": "Sample Title 3",
+      "rating": 70,
+      "message": "This is a sample message content from the third entry.",
+      "author": "Author1",
+      "sent_at": "2023-12-03T08:15:00Z"
+    },
+    {
+      "id": "4",
+      "title": "Sample Title 4",
+      "rating": 20,
+      "message": "This is a sample message content from the fourth entry.",
+      "author": "Author2",
+      "sent_at": "2023-12-04T12:00:00Z"
+    },
+    {
+      "id": "5",
+      "title": "Sample Title 5",
+      "rating": 50,
+      "message": "This is a sample message content from the fifth entry.",
+      "author": "Author1",
+      "sent_at": "2023-12-05T09:45:00Z"
+    },
+    {
+      "id": "6",
+      "title": "Sample Title 6",
+      "rating": 60,
+      "message": "This is a sample message content from the sixth entry.",
+      "author": "Author2",
+      "sent_at": "2023-12-06T14:00:00Z"
+    },
+    {
+      "id": "7",
+      "title": "Sample Title 7",
+      "rating": 80,
+      "message": "This is a sample message content from the seventh entry.",
+      "author": "Author1",
+      "sent_at": "2023-12-07T10:30:00Z"
+    },
+    {
+      "id": "8",
+      "title": "Sample Title 8",
+      "rating": 40,
+      "message": "This is a sample message content from the eighth entry.",
+      "author": "Author2",
+      "sent_at": "2023-12-08T13:45:00Z"
+    },
+    {
+      "id": "9",
+      "title": "Sample Title 9",
+      "rating": 30,
+      "message": "This is a sample message content from the ninth entry.",
+      "author": "Author1",
+      "sent_at": "2023-12-09T11:00:00Z"
+    },
+    {
+      "id": "10",
+      "title": "Sample Title 10",
+      "rating": 100,
+      "message": "This is a sample message content from the tenth entry.",
+      "author": "Author2",
+      "sent_at": "2023-12-10T16:00:00Z"
+    },
+    {
+      "id": "11",
+      "title": "Sample Title 11",
+      "rating": 15,
+      "message": "This is a sample message content from the eleventh entry.",
+      "author": "Author3",
+      "sent_at": "2023-12-11T17:00:00Z"
+    },
+    {
+      "id": "12",
+      "title": "Sample Title 12",
+      "rating": 25,
+      "message": "This is a sample message content from the twelfth entry.",
+      "author": "Author3",
+      "sent_at": "2023-12-12T18:00:00Z"
+    },
+    {
+      "id": "13",
+      "title": "Sample Title 13",
+      "rating": 35,
+      "message": "This is a sample message content from the thirteenth entry.",
+      "author": "Author3",
+      "sent_at": "2023-12-13T19:00:00Z"
+    },
+    {
+      "id": "14",
+      "title": "Sample Title 14",
+      "rating": 45,
+      "message": "This is a sample message content from the fourteenth entry.",
+      "author": "Author3",
+      "sent_at": "2023-12-14T20:00:00Z"
+    },
+    {
+      "id": "15",
+      "title": "Sample Title 15",
+      "rating": 55,
+      "message": "This is a sample message content from the fifteenth entry.",
+      "author": "Author3",
+      "sent_at": "2023-12-15T21:00:00Z"
+    },
+    {
+      "id": "16",
+      "title": "Sample Title 16",
+      "rating": 65,
+      "message": "This is a sample message content from the sixteenth entry.",
+      "author": "Author3",
+      "sent_at": "2023-12-16T22:00:00Z"
+    },
+    {
+      "id": "17",
+      "title": "Sample Title 17",
+      "rating": 75,
+      "message": "This is a sample message content from the seventeenth entry.",
+      "author": "Author3",
+      "sent_at": "2023-12-17T23:00:00Z"
+    },
+    {
+      "id": "18",
+      "title": "Sample Title 18",
+      "rating": 85,
+      "message": "This is a sample message content from the eighteenth entry.",
+      "author": "Author3",
+      "sent_at": "2023-12-17T23:00:00Z"
+    },
+    {
+      "id": "b60e",
+      "title": "Testowa praca wprowadzona w aplikacji",
+      "message": "Testowa treść w aplikacji",
+      "author": "MM",
+      "userId": null,
+      "date": "2025-01-04T00:47:00.210Z",
+      "reactions": {
+        "thumbsUp": 0,
+        "wow": 0,
+        "heart": 0,
+        "rocket": 0,
+        "coffee": 0
+      }
+    },
+    {
+      "id": "ba92",
+      "title": "Test 2",
+      "message": "Ręczny wpis",
+      "author": "MM",
+      "userId": null,
+      "date": "2025-01-04T00:49:38.765Z",
+      "reactions": {
+        "thumbsUp": 0,
+        "wow": 0,
+        "heart": 0,
+        "rocket": 0,
+        "coffee": 0
+      }
+    },
+    {
+      "id": "d775",
+      "title": "Test 3",
+      "message": "Test 12345",
+      "author": "Test 123",
+      "sent_at": "2025-01-04T00:53:07.085Z",
+      "rating": 0,
+      "userId": null,
+      "date": "2025-01-04T00:53:20.551Z",
+      "reactions": {
+        "thumbsUp": 0,
+        "wow": 0,
+        "heart": 0,
+        "rocket": 0,
+        "coffee": 0
+      }
+    }
+  ]
+}

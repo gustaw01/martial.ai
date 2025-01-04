@@ -43,7 +43,7 @@ const HistoryList = () => {
                         <th>Treść</th>
                         <th>Autor</th>
                         <th>Przesłano</th>
-                        <th>Edit</th>
+                        <th>Przejdź</th>
                     </tr>
                     </thead>
                     <tbody>
