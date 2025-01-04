@@ -23,7 +23,7 @@ const History = ({id = null}) => {
                     {history.title}
                 </td>
                 <td>
-                    {history.rating}
+                    {history.rating} %
                 </td>
                 <td>
                     {history.message}
@@ -35,7 +35,7 @@ const History = ({id = null}) => {
                     {history.sent_at}
                 </td>
                 <td>
-                    <button onClick={handleEdit} className="btn btn-primary">Edit</button>
+                    <button onClick={handleEdit} className="btn btn-success">Przejdź</button>
                 </td>
             </tr>
         )

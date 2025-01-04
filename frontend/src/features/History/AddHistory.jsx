@@ -1,10 +1,47 @@
+import { useState } from "react";
+import { useAddNewHistoryMutation } from "./historyApiSlice";
+import { useNavigate } from "react-router-dom";
+
 const AddHistory = () => {
+    const navigate = useNavigate();
+    const [addNewHistory, { isLoading }] = useAddNewHistoryMutation();
+    const [formData, setFormData] = useState({
+        title: "",
+        message: "",
+        author: "",
+        // TODO: Usunąć rating z formularza w finalnej wersji
+        sent_at: new Date().toISOString(),
+        rating: 0,
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            // Wywołanie mutacji z danymi formularza
+            await addNewHistory(formData).unwrap();
+            setFormData({ title: "", message: "", author: "" }); // Reset formularza
+            alert("Wpis został dodany pomyślnie!");
+            navigate("/dash/history");
+        } catch (err) {
+            console.error("Błąd podczas dodawania historii:", err);
+            alert("Nie udało się dodać wpisu. Spróbuj ponownie.");
+        }
+    };
+
     return (
         <div className="history-form">
-            <h1 class="text-3xl font-bold">Zweryfikuj nową pracę</h1>
+            <h1 className="text-3xl font-bold mb-4">Zweryfikuj nową pracę</h1>
 
-            <form> {/* Dodany margin top */}   
-                <div className="form-control w-full max-w-xs"> {/* Dodany div dla form-control */}
+            <form onSubmit={handleSubmit}>
+                <div className="form-control w-full max-w-xs">
                     <label htmlFor="title" className="label">
                         <span className="label-text">Tytuł</span>
                     </label>
@@ -14,22 +51,28 @@ const AddHistory = () => {
                         name="title"
                         placeholder="Wpisz tytuł"
                         className="input input-bordered w-full max-w-xs"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
                     />
                 </div>
 
-                <div className="form-control w-full max-w-xs"> {/* Dodany div dla form-control */}
+                <div className="form-control w-full max-w-xs">
                     <label htmlFor="message" className="label">
                         <span className="label-text">Treść</span>
                     </label>
-                    <textarea 
+                    <textarea
                         id="message"
                         name="message"
                         placeholder="Wpisz treść"
                         className="textarea textarea-bordered"
+                        value={formData.message}
+                        onChange={handleChange}
+                        required
                     />
                 </div>
 
-                <div className="form-control w-full max-w-xs"> {/* Dodany div dla form-control */}
+                <div className="form-control w-full max-w-xs">
                     <label htmlFor="author" className="label">
                         <span className="label-text">Autor</span>
                     </label>
@@ -39,12 +82,19 @@ const AddHistory = () => {
                         name="author"
                         placeholder="Wpisz autora"
                         className="input input-bordered w-full max-w-xs"
+                        value={formData.author}
+                        onChange={handleChange}
+                        required
                     />
                 </div>
 
                 <div>
-                    <button type="submit" className="btn btn-neutral mt-4"> {/* Dodany margin top */}
-                        Sprawdź wpis!
+                    <button 
+                        type="submit" 
+                        className={`btn mt-4 ${isLoading ? "btn-disabled" : "btn-neutral"}`}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "Wysyłanie..." : "Sprawdź wpis!"}
                     </button>
                 </div>
             </form>
