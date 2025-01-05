@@ -38,19 +38,19 @@ def calculate_cosine_similarity(vector1, vector2):
 
 
 def blast(
-    target_sentences, document_data, threshold=0.8, max_forward=5, max_backward=5
+    target_embeddings, document_data, threshold=0.8, max_forward=5, max_backward=5
 ):
     """
-    target_sentences: Lista embeddingów zdań, które chcemy porównać (stanowią dokument).
-    document_data: Lista zdań z dokumentu bazy danych.
-    threshold: Minimalne cosine similarity dla uznania zdania za podobne.
-    max_forward: Maksymalna liczba zdań do przodu, które można sprawdzić dla dopasowania w dokumencie z bazy.
-    max_backward: Maksymalna liczba zdań do tyłu, które można sprawdzić dla dopasowania w dokumencie z bazy.
+    target_embeddings: List of sentence embeddings to compare (constituting a document).
+    document_data: List of sentences from the database document.
+    threshold: Minimum cosine similarity to consider a sentence as similar.
+    max_forward: Maximum number of sentences forward to check for a match in the database document.
+    max_backward: Maximum number of sentences backward to check for a match in the database document.
     """
     sequences = []
     used_sentence_ids = set()
 
-    for target_index, target_sentence in enumerate(target_sentences):
+    for target_index, target_sentence in enumerate(target_embeddings):
         target_embedding = np.array(target_sentence)
 
         for i, record in enumerate(document_data):
@@ -68,26 +68,26 @@ def blast(
                         "text": record["sentence"],
                         "index_in_doc": record["index_in_doc"],
                         "similarity": similarity,
+                        "matched_target_id": target_index,
                     }
                 ]
                 used_sentence_ids.add(sentence_id)
                 current_index = i
 
-                for next_target_sentence in target_sentences[target_index + 1 :]:
-                    next_target_embedding = np.array(next_target_sentence)
-                    next_match_found = False
+                for j in range(
+                    current_index + 1,
+                    min(current_index + 1 + max_forward, len(document_data)),
+                ):
+                    next_record = document_data[j]
+                    next_sentence_id = next_record["id"]
+                    if next_sentence_id in used_sentence_ids:
+                        continue
 
-                    for j in range(
-                        current_index + 1,
-                        min(current_index + 1 + max_forward, len(document_data)),
+                    next_embedding = np.array(next_record["embedding"])
+                    for next_target_sentence_index, next_target_sentence in enumerate(
+                        target_embeddings[target_index + 1 :], start=target_index + 1
                     ):
-                        next_record = document_data[j]
-                        next_sentence_id = next_record["id"]
-
-                        if next_sentence_id in used_sentence_ids:
-                            continue
-
-                        next_embedding = np.array(next_record["embedding"])
+                        next_target_embedding = np.array(next_target_sentence)
                         next_similarity = calculate_cosine_similarity(
                             next_target_embedding, next_embedding
                         )
@@ -99,28 +99,23 @@ def blast(
                                     "text": next_record["sentence"],
                                     "index_in_doc": next_record["index_in_doc"],
                                     "similarity": next_similarity,
+                                    "matched_target_id": next_target_sentence_index,
                                 }
                             )
                             used_sentence_ids.add(next_sentence_id)
-                            current_index = j
-                            next_match_found = True
                             break
 
-                    if not next_match_found:
-                        break
+                for j in range(max(0, current_index - max_backward), current_index):
+                    prev_record = document_data[j]
+                    prev_sentence_id = prev_record["id"]
+                    if prev_sentence_id in used_sentence_ids:
+                        continue
 
-                for prev_target_sentence in reversed(target_sentences[:target_index]):
-                    prev_target_embedding = np.array(prev_target_sentence)
-                    previous_match_found = False
-
-                    for j in range(max(0, current_index - max_backward), current_index):
-                        prev_record = document_data[j]
-                        prev_sentence_id = prev_record["id"]
-
-                        if prev_sentence_id in used_sentence_ids:
-                            continue
-
-                        prev_embedding = np.array(prev_record["embedding"])
+                    prev_embedding = np.array(prev_record["embedding"])
+                    for prev_target_sentence_index, prev_target_sentence in enumerate(
+                        reversed(target_embeddings[:target_index]), start=0
+                    ):
+                        prev_target_embedding = np.array(prev_target_sentence)
                         prev_similarity = calculate_cosine_similarity(
                             prev_target_embedding, prev_embedding
                         )
@@ -133,42 +128,23 @@ def blast(
                                     "text": prev_record["sentence"],
                                     "index_in_doc": prev_record["index_in_doc"],
                                     "similarity": prev_similarity,
+                                    "matched_target_id": target_index
+                                    - prev_target_sentence_index
+                                    - 1,
                                 },
                             )
                             used_sentence_ids.add(prev_sentence_id)
-                            current_index = j
-                            previous_match_found = True
                             break
 
-                    if not previous_match_found:
-                        break
-
                 sequences.append(sequence)
-
                 break
 
     return sequences
 
 
-target_sentences = [
-    "2015 saw the premiere of ''The Last Jedi'' (2017) and ''The Rise of Skywalker.",
-    "W 2015 roku całkowita wartość franczyzy wyniosła 42 mld USD, co pozwoliło zająć jej 2. miejsce wśród najbardziej dochodowych franczyz.",  # 18
-    "Akcja filmów i innych kanonicznych elementów franczyzy opisuje ponad 60 lat historii.",  # 21
-    "Akcja utworów należących do ''Legend'' sięga nawet ponad 25 000 lat wstecz, oraz wiek naprzód, opisując niekanoniczną przyszłość w której obca rasa zwana Yuuzhan Vong przybywa z innej galaktyki.",  # 22
-    "Nie wiem o czym napisać, pozdrawiam.",
-]
-target_embeddings = []
-
-for sentence in target_sentences:
-    response = openai_client.embeddings.create(input=sentence, model=model_name)
-    target_embeddings.append(response.data[0].embedding)
-
-
-conn = get_db_connection()
-cursor = conn.cursor()
-
-
 def get_sentences_from_doc(doc_title):
+    conn = get_db_connection()
+    cursor = conn.cursor()
     query = """
     SELECT id, doc_title, doc_langauge, sentence, index_in_doc, embedding
     FROM embeddings
@@ -190,20 +166,3 @@ def get_sentences_from_doc(doc_title):
             }
         )
     return results
-
-
-doc_title = "Gwiezdne wojny"
-sentences_from_db = get_sentences_from_doc(doc_title)
-sequences = blast(
-    target_embeddings, sentences_from_db, threshold=0.89, max_forward=3, max_backward=2
-)
-
-print(f"Found {len(sequences)} sequences.")
-for seq_index, sequence in enumerate(sequences):
-    print(f"Sequence {seq_index + 1}:")
-    for sentence in sequence:
-        print(
-            f"  ID: {sentence['sentence_id']}, Similarity: {sentence['similarity']:.2f}"
-        )
-        print(f"  Text: {sentence['text']}")
-    print()
