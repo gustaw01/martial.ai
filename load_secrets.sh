@@ -1,8 +1,5 @@
 #!/bin/bash
 
-export HCP_CLIENT_ID=access
-export HCP_CLIENT_SECRET=secret
-
 HCP_API_TOKEN=$(curl --location "https://auth.idp.hashicorp.com/oauth2/token" \
 --header "Content-Type: application/x-www-form-urlencoded" \
 --data-urlencode "client_id=$HCP_CLIENT_ID" \
