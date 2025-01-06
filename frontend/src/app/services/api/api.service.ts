@@ -22,4 +22,13 @@ export class ApiService {
     const historyURL: string = `${environment.apiUrl}/history/${id}`;
     return this.http.get<History>(historyURL);
   }
+
+  updateHistoryItem(id: number, historyItem: History): Observable<History> {
+    return this.http.put<History>(`${environment.apiUrl}/history/${id}`, historyItem);
+  }
+  
+  createHistoryItem(historyItem: History): Observable<History> {
+    return this.http.post<History>(`${environment.apiUrl}/history`, historyItem);
+  }
+  
 }

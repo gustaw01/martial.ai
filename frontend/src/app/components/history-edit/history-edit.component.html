@@ -1,10 +1,77 @@
-<section>
-    <h2>Praca "Tytuł"</h2>
+<section class="history-item">
+    <h2>Praca "{{ historyItem.title}}"</h2>
     <form>
-        <label for="title">Tytuł</label>
-        <input type="text" id="title" name="title">
-        <label for="rating">Ocena</label>
-        <input type="number" id="rating" name="rating">
-        <button type="submit">Zapisz</button>
+        <mat-form-field>
+            <mat-label 
+                class="history-item-label" 
+                for="title">
+                Tytuł
+            </mat-label>
+            <input 
+                type="text" 
+                class="history-item-input" 
+                id="title" 
+                name="title" 
+                value="{{ historyItem.title}}" 
+            matInput>
+        </mat-form-field><br>
+        <mat-form-field>
+            <mat-label 
+                class="history-item-label" 
+                for="rating">
+                Opis
+            </mat-label>
+            <input 
+                type="number" 
+                class="history-item-input" 
+                id="rating" 
+                name="rating" 
+                value="{{ historyItem.rating}}" 
+                matInput>
+        </mat-form-field><br>
+        <mat-form-field>
+            <mat-label 
+                class="history-item-label" 
+                for="message">
+                Opis
+            </mat-label>
+            <textarea 
+                id="message" 
+                class="history-item-textarea" 
+                name="message" 
+                value="{{ historyItem.message}}" 
+                matInput>
+            </textarea>
+        </mat-form-field><br>
+        <mat-form-field>
+            <mat-label 
+                class="history-item-label" 
+                for="author">
+                Autor
+            </mat-label>
+            <input 
+                class="history-item-input" 
+                type="text" 
+                id="author" 
+                name="author" 
+                value="{{ historyItem.author}}" 
+                matInput>
+        </mat-form-field><br>
+        <mat-form-field class="example-full-width">
+            <mat-label>Data wysłania</mat-label>
+            <input matInput [matDatepicker]="picker" id="sent_at" value="{{ historyItem.sent_at}}">
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker">
+            </mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field><br>
+        
+        <button 
+            mat-fab 
+            extended
+            type="submit" 
+            class="history-item-button">
+            Zapisz
+        </button>
     </form>
 </section>

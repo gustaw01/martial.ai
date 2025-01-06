@@ -1,7 +1,9 @@
 <div class="history">
     <h2>Historia</h2>
-    <div *ngFor="let item of history" routerLink="/history/{{ item.id }}" class="history-item">
-        <h3>{{ item.title }}</h3>
-        <p>Rating: {{ item.rating }}</p>
-    </div>
+    <mat-list role="menu" *ngFor="let item of history">
+        <mat-list-item routerLink="/history/{{ item.id }}" class="history-item" role="menuitem">
+            <h3 mat-line>{{ item.title }}</h3>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+    </mat-list>
 </div>
