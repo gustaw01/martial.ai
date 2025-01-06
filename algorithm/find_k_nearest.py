@@ -1,7 +1,13 @@
 from psycopg2.extensions import connection
 
 
-def find_k_nearest(vector: list[float], n_articles: int, conn: connection, vec_lenght: int, lang_to_exclue: str | None = None) -> list:
+def find_k_nearest(
+    vector: list[float],
+    n_articles: int,
+    conn: connection,
+    vec_lenght: int,
+    lang_to_exclue: str | None = None,
+) -> list:
     """
     Function to find K closest vectors in the database given a vector
 
@@ -17,7 +23,7 @@ def find_k_nearest(vector: list[float], n_articles: int, conn: connection, vec_l
         raise ValueError("Vector must be of type list[float]")
 
     if lang_to_exclue:
-        where_stantment = f"WHERE doc_langauge != %s"
+        where_stantment = "WHERE doc_langauge != %s"
         query_params = [str(vector), lang_to_exclue, str(n_articles)]
     else:
         where_stantment = ""

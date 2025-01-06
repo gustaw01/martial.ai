@@ -1,4 +1,3 @@
-import os
 import logging
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from models import Message, MessageResponse
@@ -9,21 +8,24 @@ from typing import List, Optional
 from docx import Document
 from pypdf import PdfReader
 from io import BytesIO
+from config import Settings
 
 logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 
+
+settings = Settings()
 app = FastAPI()
 
 
 def get_db_connection():
     try:
         conn = psycopg2.connect(
-            dbname=os.getenv("PGDATABASE"),
-            user=os.getenv("PGUSER"),
-            password=os.getenv("PGPASSWORD"),
-            host=os.getenv("PGHOST"),
-            port=os.getenv("PGPORT", 5432),
+            dbname=settings.PGDATABASE,
+            user=settings.PGUSER,
+            password=settings.PGPASSWORD.get_secret_value(),
+            host=settings.PGHOST.get_secret_value(),
+            port=settings.PGPORT,
         )
         logging.debug("Database connected")
         return conn
