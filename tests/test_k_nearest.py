@@ -1,9 +1,16 @@
-from algorithm.find_k_nearest import find_k_nearest
+
 from openai import OpenAI
 import psycopg2
 import os
 import time
+import sys
+import dotenv
+from test_data import TEST_TEXT # importing text from the other file
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../algorithm")))
+dotenv.load_dotenv()
+
+from find_k_nearest import find_k_nearest
 
 def test_find_k_nearest():
     openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -19,7 +26,7 @@ def test_find_k_nearest():
 
     vec_lenght = int(os.getenv("VECTOR_LENGTH"))
 
-    # This sententeded was translated from Polish into English
+    # This sentence was translated from Polish into English
     # We are hoping to find the same sentence but in the original language
     translated_sent = "2015 saw the premiere of ''The Last Jedi'' (2017) and ''The Rise of Skywalker."
     org_lang_title = "Gwiezdne wojny"
