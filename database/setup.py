@@ -13,13 +13,18 @@ from http import HTTPStatus
 load_dotenv()
 
 logging.basicConfig(
-    level=os.getenv("DATABASE_LOGGING_LEVEL", "INFO"), format="%(asctime)s - %(levelname)s - %(message)s", filename="database_setup.log", filemode="a"
+    level=os.getenv("DATABASE_LOGGING_LEVEL", "INFO"),
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    filename="database_setup.log",
+    filemode="a",
 )
 
 download("punkt_tab")
 
 
-def list_wikipedia_titles(search_query: str, n: int = 20, language: str = "en") -> list[str]:
+def list_wikipedia_titles(
+    search_query: str, n: int = 20, language: str = "en"
+) -> list[str]:
     base_url = f"https://{language}.wikipedia.org/w/api.php"  # language arg to control what language is used
     params = {
         "action": "query",
@@ -33,11 +38,16 @@ def list_wikipedia_titles(search_query: str, n: int = 20, language: str = "en") 
 
     if response.status_code == HTTPStatus.OK:
         data = response.json()
-        titles = [(language, item["title"]) for item in data.get("query", {}).get("search", [])]
+        titles = [
+            (language, item["title"])
+            for item in data.get("query", {}).get("search", [])
+        ]
         logging.debug(f"Found {len(titles)} titles for {search_query}")
         return titles
     else:
-        logging.error(f"Getting wiki titles for {search_query} returned code {response.status_code}")
+        logging.error(
+            f"Getting wiki titles for {search_query} returned code {response.status_code}"
+        )
         return []  # ??? or exti
 
 
@@ -71,20 +81,28 @@ def get_wikipedia_text(page_title: str, language: str = "en") -> str | None:
             text = re.sub(r"\[\[.*?\]\]", "", text)  # Remove if no text
             text = re.sub(r"\[http[^\]]+\]", "", text)  # external links
             text = re.sub(r"<.*?>", "", text, flags=re.DOTALL)  # html tags
-            text = re.sub(r"File:[^\s]+\s?", "", text, flags=re.IGNORECASE)  # more cleaning
+            text = re.sub(
+                r"File:[^\s]+\s?", "", text, flags=re.IGNORECASE
+            )  # more cleaning
             text = re.sub(r"\s{2,}", " ", text).strip()  # Whitespace
 
             logging.debug(f"Found {len(text)} chars in '{page_title}' page")
             return text
 
     else:
-        logging.error(f"Getting wiki text for '{page_title}' page returned code {response.status_code}")
+        logging.error(
+            f"Getting wiki text for '{page_title}' page returned code {response.status_code}"
+        )
 
 
-def get_embedding_from_sents(texts: list[str], model_name: str, client: OpenAI) -> list[list[float]]:
+def get_embedding_from_sents(
+    texts: list[str], model_name: str, client: OpenAI
+) -> list[list[float]]:
     try:
         response = client.embeddings.create(input=texts, model=model_name)
-        data = list(map(lambda x: x.embedding, response.data))  # converting response to list of lists of embeddings
+        data = list(
+            map(lambda x: x.embedding, response.data)
+        )  # converting response to list of lists of embeddings
         logging.info(f"Got {len(data)} vectors from OpenAI API")
         return data
 
@@ -94,18 +112,36 @@ def get_embedding_from_sents(texts: list[str], model_name: str, client: OpenAI) 
 
 
 def batch_db_upload(
-    embeddings: list[list[float]], texts: list[str], title: str, language: str, index_in_doc: list[int], table_name: str, cur
+    embeddings: list[list[float]],
+    texts: list[str],
+    title: str,
+    language: str,
+    index_in_doc: list[int],
+    table_name: str,
+    cur,
 ) -> None:
     if len(texts) != len(embeddings):
-        logging.error(f"Text and embedding list lenght does not match on article '{title}'")
+        logging.error(
+            f"Text and embedding list lenght does not match on article '{title}'"
+        )
 
     columns = ["doc_title", "doc_langauge", "sentence", "embedding", "index_in_doc"]
-    data = list(zip([title] * len(texts), [language] * len(texts), texts, embeddings, index_in_doc))
+    data = list(
+        zip(
+            [title] * len(texts),
+            [language] * len(texts),
+            texts,
+            embeddings,
+            index_in_doc,
+        )
+    )
     try:
         # Generate the query dynamically
         columns_str = ", ".join(columns)
         values_placeholder = ", ".join(["%s"] * len(columns))
-        query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({values_placeholder})"
+        query = (
+            f"INSERT INTO {table_name} ({columns_str}) VALUES ({values_placeholder})"
+        )
 
         # Execute the bulk insert
         cur.executemany(query, data)
@@ -116,13 +152,18 @@ def batch_db_upload(
 ARTS_PER_LANG = 32
 DATABASE_TABLE_NAME = "embeddings_test2"
 
-wiki_searches = [["Gwiezdne Wojny", "pl"], ["Star Wars", "en"], ["La Guerre des étoiles", "fr"], ["Star Wars", "tr"]]
+wiki_searches = [
+    ["Gwiezdne Wojny", "pl"],
+    ["Star Wars", "en"],
+    ["La Guerre des étoiles", "fr"],
+    ["Star Wars", "tr"],
+]
 
 nltk_langmap = {"pl": "polish", "en": "english", "fr": "french", "tr": "turkish"}
 
 
 if __name__ == "__main__":
-    logging.info(f"Starting database upload 🤞")
+    logging.info("Starting database upload 🤞")
 
     # database connection
     try:
@@ -151,22 +192,40 @@ if __name__ == "__main__":
             logging.debug(f"Analyzing {title} page in langauage '{language}'")
 
             wiki_text = get_wikipedia_text(title, lang_art)
-            logging.debug(f"Got text from {title} page ({len(wiki_text)} chars) in langauage '{language}'")
+            logging.debug(
+                f"Got text from {title} page ({len(wiki_text)} chars) in langauage '{language}'"
+            )
 
             wiki_senetences = sent_tokenize(wiki_text, nltk_langmap[lang_art])
-            logging.debug(f"Got sentences from {title} page ({len(wiki_senetences)} sentences) in langauage '{language}'")
+            logging.debug(
+                f"Got sentences from {title} page ({len(wiki_senetences)} sentences) in langauage '{language}'"
+            )
 
             sentence_ind = 0
             for text_batch in batched(wiki_senetences, 32):
-                embeddings_batch = get_embedding_from_sents(text_batch, model_name=model_name, client=openai_client)
+                embeddings_batch = get_embedding_from_sents(
+                    text_batch, model_name=model_name, client=openai_client
+                )
 
                 # counting sentences in document
-                sentences_in_doc = list(range(sentence_ind, sentence_ind + len(text_batch)))
+                sentences_in_doc = list(
+                    range(sentence_ind, sentence_ind + len(text_batch))
+                )
                 sentence_ind += len(text_batch)
 
-                batch_db_upload(embeddings_batch, text_batch, title, lang_art, sentences_in_doc, DATABASE_TABLE_NAME, cursor)
+                batch_db_upload(
+                    embeddings_batch,
+                    text_batch,
+                    title,
+                    lang_art,
+                    sentences_in_doc,
+                    DATABASE_TABLE_NAME,
+                    cursor,
+                )
                 conn.commit()  # commit to actually upload the data
 
-            logging.debug(f"Finishined uploading '{title}' page in langauage '{language}'")
+            logging.debug(
+                f"Finishined uploading '{title}' page in langauage '{language}'"
+            )
 
-    logging.info(f"Finishined uploading data 🚀")
+    logging.info("Finishined uploading data 🚀")
