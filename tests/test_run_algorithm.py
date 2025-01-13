@@ -29,19 +29,15 @@ def test_run_algorithm():
     """
 
     original_text = """
-        Star Trek został pierwotnie stworzony jako serial telewizyjny, który został po raz pierwszy wyemitowany w telewizji amerykańskiej 8 września 1966 roku. Ogółem do dziś stworzono 8 seriali, w tym jeden animowany. W sumie 6 zamkniętych seriali obejmuje 726 pojedynczych epizodów podzielonych w 30 seriach.
+        Star Trek” to kultowy fenomen science fiction, który rozpoczął się jako serial telewizyjny, po raz pierwszy wyemitowany w Stanach Zjednoczonych 8 września 1966 roku. W ciągu dekad marka rozwinęła się w ogromny wszechświat pełen seriali, filmów, książek i innych mediów.
+        Dotychczas stworzono 8 seriali, w tym jeden animowany. Wśród zamkniętych serii znajduje się 6 seriali, które łącznie obejmują 726 odcinków, podzielonych na 30 sezonów.
     """
 
     plagiarisms = run_algorithm(plagiarised_text, "pl") # Ten tekst jest w bazie danych, powinien być wykryty jako plagiat
-
-    with open("test.json", "w") as f:
-        json.dump(plagiarisms, f) 
+    assert plagiarisms["rating"] > 0.9 and plagiarisms["rating_other_lang"] < 0.2
 
     plagiarisms_t = run_algorithm(plagiarised_text_translated, "fr") # Ten tekst jest w bazie danych, ale w innym języku
+    assert plagiarisms_t["rating"] < 0.2 and plagiarisms_t["rating_other_lang"] > 0.6
+
     plagiarisms_ot = run_algorithm(original_text, "pl") # tego tekstu nie ma w bazie danych
-
-
-    print(plagiarisms)
-
-if __name__ == "__main__":
-    test_run_algorithm()
+    assert plagiarisms_ot["rating"] < 0.2 and plagiarisms_ot["rating"] < 0.2
