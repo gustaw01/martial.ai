@@ -1,7 +1,7 @@
 import os
 import logging
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
-from models import Message, MessageResponse
+from models import Message, MessageResponse, AssessmentRequest
 import psycopg2
 from dotenv import load_dotenv
 from http import HTTPStatus
@@ -9,6 +9,7 @@ from typing import List, Optional
 from docx import Document
 from pypdf import PdfReader
 from io import BytesIO
+from algorithm.run_algorithm import run_algorithm
 
 logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
@@ -39,6 +40,82 @@ def get_db_connection():
 @app.get("/index")
 async def main_route():
     return {"Martial": "AI"}
+
+
+
+async def get_plagiarism_assessment(assessment_request: AssessmentRequest):
+
+    file = assessment_request.file
+    text = assessment_request.text
+    language = assessment_request.language
+    author = assessment_request.author
+    title = assessment_request.title
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if file is None and text is None:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST.value,
+            detail="Neither file nor text was probvided"
+        )
+    elif file is not None and text is not None:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST.value,
+            detail="Both file and text was provided"
+        )
+    
+    if file:
+        if file.filename.endswith(".pdf"):
+
+            file_content = await file.read()
+            pdf_file = BytesIO(file_content)
+
+            reader = PdfReader(pdf_file)
+            text = "\n".join([page.extract_text() for page in reader.pages])
+
+            if not text.strip():
+                raise HTTPException(
+                    status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
+                    detail="No readable text found in the PDF file.",
+                )
+            
+        elif file.filename.endswith(".docx"):
+
+            document = Document(file.file)
+            text = "\n".join([paragraph.text for paragraph in document.paragraphs])
+
+            if not text.strip():
+                raise HTTPException(
+                    status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
+                    detail="No readable text found in the DOCX file.",
+                )
+            
+        else:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST.value,
+                detail="File format is not accepted",
+            )
+        
+
+    plagiarism_assessment = run_algorithm(text, language)
+
+    cursor.execute(
+        """
+        INSERT INTO plagiarisms (title, plagiarism_resilt, author)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id, sent_at
+        """,
+        (title, plagiarism_assessment, text, author),
+    )
+    conn.commit()
+    assessment_id, sent_at = cursor.fetchone()
+
+    plagiarism_assessment["assessment_id"] = assessment_id
+    plagiarism_assessment["sent_at"] = sent_at
+
+    return plagiarism_assessment
+
 
 
 @app.post("/history/pdf")
@@ -175,7 +252,7 @@ async def save_history_element(msg: Message):
             status_code=HTTPStatus.BAD_REQUEST.value,
             detail="Rating must be between 0 and 100.",
         )
-
+    
     try:
         cursor.execute(
             """
