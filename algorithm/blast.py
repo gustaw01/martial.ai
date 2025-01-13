@@ -41,11 +41,19 @@ def blast(
     target_embeddings, document_data, threshold=0.8, max_forward=5, max_backward=5
 ):
     """
-    target_embeddings: List of sentence embeddings to compare (constituting a document).
-    document_data: List of sentences from the database document.
-    threshold: Minimum cosine similarity to consider a sentence as similar.
-    max_forward: Maximum number of sentences forward to check for a match in the database document.
-    max_backward: Maximum number of sentences backward to check for a match in the database document.
+    Args:
+        target_embeddings: List of sentence embeddings to compare (constituting a document).
+        document_data: List of sentences from the database document.
+        threshold: Minimum cosine similarity to consider a sentence as similar.
+        max_forward: Maximum number of sentences forward to check for a match in the database document.
+        max_backward: Maximum number of sentences backward to check for a match in the database document.
+
+    Returns:
+        List of sequences of similar sentences.
+        sentence_id: sentence ID in database
+        text: text of the sentence from database
+        similarity: cosine similarity of target and database sentence
+        matched_target_id: index of the target sentence that was matched
     """
     sequences = []
     used_sentence_ids = set()
