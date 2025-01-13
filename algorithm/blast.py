@@ -150,15 +150,23 @@ def blast(
     return sequences
 
 
-def get_sentences_from_doc(doc_title):
+def get_sentences_from_doc(doc_title, lang=None):
     conn = get_db_connection()
     cursor = conn.cursor()
-    query = """
+
+    if lang:
+        query_cond = f"AND doc_langauge = %s"
+        params = (doc_title, lang)
+    else:
+        query_cond = ""
+        params = (doc_title, )
+
+    query = f"""
     SELECT id, doc_title, doc_langauge, sentence, index_in_doc, embedding
     FROM embeddings
-    WHERE doc_title = %s
+    WHERE doc_title = %s {query_cond}
     """
-    cursor.execute(query, (doc_title,))
+    cursor.execute(query, params)
 
     rows = cursor.fetchall()
     results = []
