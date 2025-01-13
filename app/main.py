@@ -1,5 +1,6 @@
 import os
 import logging
+import json
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from models import Message, MessageResponse, AssessmentRequest
 import psycopg2
@@ -9,7 +10,10 @@ from typing import List, Optional
 from docx import Document
 from pypdf import PdfReader
 from io import BytesIO
-from algorithm.run_algorithm import run_algorithm
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../algorithm")))
+from run_algorithm import run_algorithm
 
 logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
@@ -42,7 +46,7 @@ async def main_route():
     return {"Martial": "AI"}
 
 
-
+@app.post("/plagiarism_assessment")
 async def get_plagiarism_assessment(assessment_request: AssessmentRequest):
 
     file = assessment_request.file
@@ -102,11 +106,11 @@ async def get_plagiarism_assessment(assessment_request: AssessmentRequest):
 
     cursor.execute(
         """
-        INSERT INTO plagiarisms (title, plagiarism_resilt, author)
+        INSERT INTO plagiarisms (title, plagiarism_result, uploaded_text, author)
         VALUES (%s, %s, %s, %s)
         RETURNING id, sent_at
         """,
-        (title, plagiarism_assessment, text, author),
+        (title, json.dumps(plagiarism_assessment), text, author),
     )
     conn.commit()
     assessment_id, sent_at = cursor.fetchone()
