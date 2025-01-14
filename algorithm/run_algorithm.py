@@ -106,7 +106,7 @@ def run_algorithm(text: str, language: str):
     reduced_plagiarisms_other_lang, score_other_lang = reduce_plagiarisms(plagiarisms_other_lang, split_text)
 
     ret_dict = {
-        "plagiarism": reduced_plagiarisms,
+        "plagiarisms": reduced_plagiarisms, 
         "plagiarisms_other_lang": reduced_plagiarisms_other_lang,
         "rating": score,
         "rating_other_lang": score_other_lang

@@ -2,7 +2,7 @@ import os
 import logging
 import json
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
-from models import Message, MessageResponse, AssessmentRequest
+from models import Message, MessageResponse, AssessmentRequest, AssessmentResponse
 import psycopg2
 from dotenv import load_dotenv
 from http import HTTPStatus
@@ -46,8 +46,12 @@ async def main_route():
     return {"Martial": "AI"}
 
 
-@app.post("/plagiarism_assessment")
+@app.post("/plagiarism_assessment", response_model=AssessmentResponse)
 async def get_plagiarism_assessment(assessment_request: AssessmentRequest):
+    """
+    Endpoint to create plagiarims assessment for a document/text
+    
+    """
 
     file = assessment_request.file
     text = assessment_request.text
