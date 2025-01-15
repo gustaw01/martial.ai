@@ -9,7 +9,7 @@ const Home = () => {
                   <p className="py-6">
                       Zaloguj się, aby korzystać z systemu. Jeśli nie masz konta, skontaktuj się z administratorem.
                   </p>
-                  <Link to="/login" className="btn btn-primary">Zaloguj się</Link>
+                   <Link to="/dash" className="btn btn-primary">Przejdź do systemu</Link> {/* TODO: Zmienić na przycisk logowania */}
               </div>
           </div>
       </div>
