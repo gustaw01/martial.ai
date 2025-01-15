@@ -91,53 +91,60 @@ def test_delete_non_existing_message():
 
 
 def test_no_file_or_text():
-    response = client.post("/plagiarism_assessment", json={
-        "file": None,
-        "text": None,
+    response = client.post("/plagiarism_assessment", data={
         "language": "en",
         "author": "Test Author",
         "title": "Test Title"
     })
+
     assert response.status_code == 400
     assert response.json()["detail"] == "Neither file nor text was probvided"
 
 def test_both_file_and_text():
-    response = client.post("/plagiarism_assessment", json={
-        "file": {"filename": "example.txt", "content": "Sample content"},
-        "text": "Sample text",
-        "language": "en",
-        "author": "Test Author",
-        "title": "Test Title"
-    })
-    assert response.status_code == 422
+    response = client.post("/plagiarism_assessment", 
+        data={
+            "text": "asdfasdfasdf",
+            "language": "en",
+            "author": "Test Author",
+            "title": "Test Title"
+    },
+    files={"file": ("document.docx", BytesIO(b"asdfasdfasd"), "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
+    )
+    assert response.status_code == 400
     assert response.json()["detail"] == "Both file and text was provided"
 
-def test_pdf_file():
-    file_content = BytesIO(b"%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj")  # Mocked minimal PDF content
-    response = client.post(
-        "/plagiarism_assessment",
-        files={"file": ("document.pdf", file_content, "application/pdf")},
-        data={
-            "language": "en",
-            "author": "Test Author",
-            "title": "Test Title",
-        },
-    )
+def test_upload_pdf():
+
+    data = {
+        "language": "en",
+        "author": "Author",
+        "title": "Title",
+    }
+
+    with open(os.path.join("tests", "test_data", "test.pdf"), "rb") as test_file:
+        response = client.post(
+            "/plagiarism_assessment",
+            files={"file": ("document.pdf", test_file, "application/pdf")},
+            data=data,
+        )
+
     assert response.status_code == 200
+    assert "rating" in response.json() 
+
 
 def test_docx_file():
-    file_content = BytesIO(b"PK\x03\x04")  # Mocked minimal DOCX content (ZIP header)
-    response = client.post(
-        "/plagiarism_assessment",
-        files={"file": ("document.docx", file_content, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
-        data={
-            "language": "en",
-            "author": "Test Author",
-            "title": "Test Title",
-        },
-    )
+    with open(os.path.join("tests", "test_data", "test.docx"), "rb") as test_file:
+        response = client.post(
+            "/plagiarism_assessment",
+            files={"file": ("document.docx", test_file, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")},
+            data={
+                "language": "en",
+                "author": "Test Author",
+                "title": "Test Title",
+            },
+        )
     assert response.status_code == 200
-    assert response.json()["plagiarism_score"] == 42
+    assert "rating" in response.json() 
 
 def test_invalid_file_format():
     file_content = BytesIO(b"Sample content")
@@ -156,8 +163,7 @@ def test_invalid_file_format():
 def test_text_submission():
     response = client.post(
         "/plagiarism_assessment",
-        json={
-            "file": None,
+        data={
             "text": "This is a sample text for plagiarism detection.",
             "language": "en",
             "author": "Test Author",
@@ -168,15 +174,15 @@ def test_text_submission():
     assert response.json()["rating"] >= 0
 
 def test_empty_pdf_file():
-    file_content = BytesIO(b"%PDF-1.4\n%EOF")  # Mocked empty PDF content
-    response = client.post(
-        "/plagiarism_assessment",
-        files={"file": ("document.pdf", file_content, "application/pdf")},
-        data={
-            "language": "en",
-            "author": "Test Author",
-            "title": "Test Title",
-        },
-    )
+    with open(os.path.join("tests", "test_data", "test_empty.pdf"), "rb") as test_file:
+        response = client.post(
+            "/plagiarism_assessment",
+            data={
+                "language": "en",
+                "author": "Test Author",
+                "title": "Test Title",
+            },
+            files={"file": ("document.pdf", test_file, "application/pdf")},
+        )
     assert response.status_code == 422
     assert response.json()["detail"] == "No readable text found in the PDF file."

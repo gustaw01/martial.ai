@@ -14,13 +14,6 @@ class MessageResponse(Message):
     sent_at: str
 
 
-class AssessmentRequest(BaseModel):
-        author: str
-        language: str
-        title: str = ""
-        text: str|None = None
-        file: UploadFile|None = None
-
 class PlagiarismSentence(BaseModel):
     matched_sentence: str
     document_sentence: str

@@ -2,7 +2,7 @@ import os
 import logging
 import json
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
-from models import Message, MessageResponse, AssessmentRequest, AssessmentResponse
+from models import Message, MessageResponse, AssessmentResponse
 import psycopg2
 from dotenv import load_dotenv
 from http import HTTPStatus
@@ -46,18 +46,15 @@ async def main_route():
 
 
 @app.post("/plagiarism_assessment", response_model=AssessmentResponse)
-async def get_plagiarism_assessment(assessment_request: AssessmentRequest):
+async def get_plagiarism_assessment(
+    file: Optional[UploadFile] = None,
+    text: Optional[str] = Form(None),
+    language: str = Form(...),
+    author: str = Form(...),
+    title: str = Form(...)):
     """
     Endpoint to create plagiarims assessment for a document/text
-    
     """
-
-    file = assessment_request.file
-    text = assessment_request.text
-    language = assessment_request.language
-    author = assessment_request.author
-    title = assessment_request.title
-
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -65,6 +62,11 @@ async def get_plagiarism_assessment(assessment_request: AssessmentRequest):
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST.value,
             detail="Neither file nor text was probvided"
+        )
+    elif file is not None and text == "":
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST.value,
+            detail="File is provided but text field is provided with empty string"
         )
     elif file is not None and text is not None:
         raise HTTPException(
@@ -119,7 +121,7 @@ async def get_plagiarism_assessment(assessment_request: AssessmentRequest):
     assessment_id, sent_at = cursor.fetchone()
 
     plagiarism_assessment["assessment_id"] = assessment_id
-    plagiarism_assessment["sent_at"] = sent_at
+    plagiarism_assessment["sent_at"] = sent_at.isoformat()
 
     return plagiarism_assessment
 
