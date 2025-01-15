@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import { selectHistoryById } from "./historyApiSlice";
+import PlagiarismAssessment from '../PlagiarismAssessment/PlagiarismAssessment';
 
 const getProgressBarColor = (rating) => {
     if (rating <= 25) return "radial-progress text-error";
@@ -57,7 +58,8 @@ const HistoryView = () => {
                     <div className="card bg-base-100 w-full max-w-3xl shadow-2xl">
                         <div className="card-body">
                             <h2 className="card-title">Treść</h2>
-                            {history.message}
+                            {/* {history.message} */}
+                            <PlagiarismAssessment documentId={historyId} />
                         </div>
                     </div>
                 </div>
