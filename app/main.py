@@ -12,8 +12,7 @@ from pypdf import PdfReader
 from io import BytesIO
 import sys
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../algorithm")))
-from run_algorithm import run_algorithm
+from algorithm.run_algorithm import run_algorithm
 
 logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
