@@ -1,12 +1,14 @@
 from openai import OpenAI
 import os
-
+import sys
 import time
-from algorithm.blast import blast, get_sentences_from_doc
 from dotenv import load_dotenv
 import pytest
 
-load_dotenv("app/.env")
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from app.algorithm.blast import blast, get_sentences_from_doc
+
+load_dotenv(".env")
 model_name = os.getenv("MODEL_NAME")
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 

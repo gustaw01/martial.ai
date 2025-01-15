@@ -6,10 +6,10 @@ import os
 from test_data import TEST_TEXT
 import json
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../algorithm")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 dotenv.load_dotenv()
 
-from run_algorithm import run_algorithm
+from app.algorithm.run_algorithm import run_algorithm
 
 
 def test_run_algorithm():
@@ -17,7 +17,7 @@ def test_run_algorithm():
     plagiarised_text = """
         'Równocześnie młodzieniec kuszony jest przez zło (uosabiane przez mroczną postać Dartha Sidiousa), które odwołuje się do jego ambicji i podsyca je, aby ostatecznie zawrzeć „szatański pakt” – poddanie się mu za cenę zaspokojenia własnych pragnień i posiadania wszechmocy, która okazuje się złudna.'
         Dobro i Zło są w ''Gwiezdnych wojnach'' przedstawione jednoznacznie, jednak nie oznacza to, że opisywany świat jest czarno-biały: nawet Jedi (w tym Mistrz Yoda) mają swoje słabości.
-        Nawet Vader nie jest w istocie złblast(text_embeddings, sentences_from_db, threshold=0.89)y, jest zwyczajnym człowiekiem, który uległ powabom zła.
+        Nawet Vader nie jest w istocie zły, jest zwyczajnym człowiekiem, który uległ powabom zła.
         ''Gwiezdne wojny'' to opowieść o sile tkwiącej w miłości: to, czego nie mogli dokonać najwięksi i najpotężniejsi Rycerze Jedi – pokonanie Sithów – dokonuje się dzięki miłości syna do ojca oraz ojca do syna.
     """
 
