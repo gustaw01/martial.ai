@@ -9,10 +9,10 @@ from nltk.langnames import langname
 import math
 from test_data import TEST_TEXT # importing text from the other file
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../algorithm")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 dotenv.load_dotenv()
 
-from create_embeddings import create_embeddings, create_embeddings_multithreading
+from app.algorithm.create_embeddings import create_embeddings, create_embeddings_multithreading
 
 
 def cosine_similarity(v1, v2):
@@ -40,11 +40,11 @@ def test_create_embeddings(text, language, model_name):
     print(f"Testing emebddings on {n_sentences} sentences")
 
     start_single = time.time()
-    single_thread_result = create_embeddings(text, language, model_name, openai_client)
+    single_thread_result, _ = create_embeddings(text, language, model_name, openai_client)
     single_thread_time = time.time() - start_single
 
     start_multi = time.time()
-    multi_thread_result = create_embeddings_multithreading(text, language, model_name, openai_client)
+    multi_thread_result, _ = create_embeddings_multithreading(text, language, model_name, openai_client)
     multi_thread_time = time.time() - start_multi
 
     print(f"Single-threaded time: {single_thread_time:.4f}s")

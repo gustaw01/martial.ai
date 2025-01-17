@@ -41,11 +41,19 @@ def blast(
     target_embeddings, document_data, threshold=0.8, max_forward=5, max_backward=5
 ):
     """
-    target_embeddings: List of sentence embeddings to compare (constituting a document).
-    document_data: List of sentences from the database document.
-    threshold: Minimum cosine similarity to consider a sentence as similar.
-    max_forward: Maximum number of sentences forward to check for a match in the database document.
-    max_backward: Maximum number of sentences backward to check for a match in the database document.
+    Args:
+        target_embeddings: List of sentence embeddings to compare (constituting a document).
+        document_data: List of sentences from the database document.
+        threshold: Minimum cosine similarity to consider a sentence as similar.
+        max_forward: Maximum number of sentences forward to check for a match in the database document.
+        max_backward: Maximum number of sentences backward to check for a match in the database document.
+
+    Returns:
+        List of sequences of similar sentences.
+        sentence_id: sentence ID in database
+        text: text of the sentence from database
+        similarity: cosine similarity of target and database sentence
+        matched_target_id: index of the target sentence that was matched
     """
     sequences = []
     used_sentence_ids = set()
@@ -142,15 +150,23 @@ def blast(
     return sequences
 
 
-def get_sentences_from_doc(doc_title):
+def get_sentences_from_doc(doc_title, lang=None):
     conn = get_db_connection()
     cursor = conn.cursor()
-    query = """
+
+    if lang:
+        query_cond = f"AND doc_langauge = %s"
+        params = (doc_title, lang)
+    else:
+        query_cond = ""
+        params = (doc_title, )
+
+    query = f"""
     SELECT id, doc_title, doc_langauge, sentence, index_in_doc, embedding
     FROM embeddings
-    WHERE doc_title = %s
+    WHERE doc_title = %s {query_cond}
     """
-    cursor.execute(query, (doc_title,))
+    cursor.execute(query, params)
 
     rows = cursor.fetchall()
     results = []

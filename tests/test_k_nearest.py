@@ -7,10 +7,10 @@ import sys
 import dotenv
 from test_data import TEST_TEXT # importing text from the other file
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../algorithm")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 dotenv.load_dotenv()
 
-from find_k_nearest import find_k_nearest
+from app.algorithm.find_k_nearest import find_k_nearest
 
 def test_find_k_nearest():
     openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))

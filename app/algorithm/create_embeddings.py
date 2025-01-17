@@ -35,7 +35,7 @@ def create_embeddings(text: str, language: str, model_name: str, client: OpenAI)
         print(f"OpenAI API respone without data {e}")
         return None
 
-    return embeddings
+    return embeddings, sentences
 
 
 def create_embeddings_multithreading(text: str, language: str, model_name: str, client: OpenAI) -> Optional[List[float]]:
@@ -75,4 +75,4 @@ def create_embeddings_multithreading(text: str, language: str, model_name: str, 
             else:
                 return None  # this is so when an error has happend in fetch_embedding
 
-    return [embedding for _, embedding in sorted(embeddings, key=lambda x: x[0])]
+    return [embedding for _, embedding in sorted(embeddings, key=lambda x: x[0])], sentences
