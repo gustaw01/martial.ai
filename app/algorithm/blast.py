@@ -155,11 +155,11 @@ def get_sentences_from_doc(doc_title, lang=None):
     cursor = conn.cursor()
 
     if lang:
-        query_cond = f"AND doc_langauge = %s"
+        query_cond = "AND doc_langauge = %s"
         params = (doc_title, lang)
     else:
         query_cond = ""
-        params = (doc_title, )
+        params = (doc_title,)
 
     query = f"""
     SELECT id, doc_title, doc_langauge, sentence, index_in_doc, embedding
