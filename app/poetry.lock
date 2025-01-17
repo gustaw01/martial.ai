@@ -1983,4 +1983,8 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
+<<<<<<< HEAD
 content-hash = "6755fc15af424afede51c25f1fa422191cbf4ed2f2ca90287fd441997f16ee4d"
+=======
+content-hash = "19ccdc1581dca5260df24c13df5029819a354c34e7324a2c00e4f29c32a47da3"
+>>>>>>> eaf018b (Added pytest-cov and updated documentation)
