@@ -81,7 +81,7 @@
         "sent_at": "2023-12-10T16:00:00Z"
       }
     ],
-    "plagiarysm": [
+    "plagiarism_assessment": [
       {
         "plagiarism":
       [
@@ -140,7 +140,10 @@
       "rating":0.997455973532323,
       "rating_other_lang":0.0,
       "assessment_id":5,
-      "sent_at":"2025-01-14T22:02:06.035240"
+      "sent_at":"2025-01-14T22:02:06.035240",
+      "author": "Author1",
+      "title": "Sample Title 1",
+      "language": "pl"
       } 
     ]
   }
