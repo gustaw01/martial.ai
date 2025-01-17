@@ -1,8 +1,8 @@
 import os
 import logging
 import json
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
-from models import Message, MessageResponse, AssessmentResponse
+from fastapi import FastAPI, HTTPException, UploadFile, Form
+from models import AssessmentResponse
 import psycopg2
 from dotenv import load_dotenv
 from http import HTTPStatus
@@ -10,7 +10,6 @@ from typing import List, Optional
 from docx import Document
 from pypdf import PdfReader
 from io import BytesIO
-import sys
 
 from algorithm.run_algorithm import run_algorithm
 
@@ -51,7 +50,8 @@ async def get_plagiarism_assessment(
     text: Optional[str] = Form(None),
     language: str = Form(...),
     author: str = Form(...),
-    title: str = Form(...)):
+    title: str = Form(...),
+):
     """
     Endpoint to create plagiarims assessment for a document/text
     """
@@ -61,22 +61,21 @@ async def get_plagiarism_assessment(
     if file is None and text is None:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST.value,
-            detail="Neither file nor text was probvided"
+            detail="Neither file nor text was probvided",
         )
     elif file is not None and text == "":
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST.value,
-            detail="File is provided but text field is provided with empty string"
+            detail="File is provided but text field is provided with empty string",
         )
     elif file is not None and text is not None:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST.value,
-            detail="Both file and text was provided"
+            detail="Both file and text was provided",
         )
-    
+
     if file:
         if file.filename.endswith(".pdf"):
-
             file_content = await file.read()
             pdf_file = BytesIO(file_content)
 
@@ -88,9 +87,8 @@ async def get_plagiarism_assessment(
                     status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
                     detail="No readable text found in the PDF file.",
                 )
-            
-        elif file.filename.endswith(".docx"):
 
+        elif file.filename.endswith(".docx"):
             document = Document(file.file)
             text = "\n".join([paragraph.text for paragraph in document.paragraphs])
 
@@ -99,13 +97,12 @@ async def get_plagiarism_assessment(
                     status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
                     detail="No readable text found in the DOCX file.",
                 )
-            
+
         else:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST.value,
                 detail="File format is not accepted",
             )
-        
 
     plagiarism_assessment = run_algorithm(text, language)
 
@@ -122,177 +119,13 @@ async def get_plagiarism_assessment(
 
     plagiarism_assessment["assessment_id"] = assessment_id
     plagiarism_assessment["sent_at"] = sent_at.isoformat()
+    plagiarism_assessment["author"] = author
+    plagiarism_assessment["title"] = title
 
     return plagiarism_assessment
 
 
-
-@app.post("/history/pdf")
-async def read_pdf(
-    title: str = Form(...),
-    rating: float = Form(...),
-    author: str = Form(...),
-    file: UploadFile = File(...),
-):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST.value,
-            detail="Uploaded file must be a PDF file.",
-        )
-
-    try:
-        file_content = await file.read()
-        pdf_file = BytesIO(file_content)
-
-        reader = PdfReader(pdf_file)
-        text = ""
-        text += "\n".join([page.extract_text() for page in reader.pages])
-
-        if not text.strip():
-            raise HTTPException(
-                status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
-                detail="No readable text found in the PDF file.",
-            )
-
-        cursor.execute(
-            """
-            INSERT INTO messages (title, rating, message, author)
-            VALUES (%s, %s, %s, %s)
-            RETURNING id, sent_at
-            """,
-            (title, rating, text, author),
-        )
-        conn.commit()
-        message_id, sent_at = cursor.fetchone()
-
-        return {
-            "id": message_id,
-            "sent_at": sent_at,
-            "title": title,
-            "rating": rating,
-            "message": text,
-            "author": author,
-        }
-
-    except psycopg2.Error as e:
-        logging.error(f"Database operation failed: {e}")
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
-            detail="Database operation failed",
-        )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
-            detail=f"Error processing the PDF file: {str(e)}",
-        )
-
-
-@app.post("/history/docx")
-async def read_docx(
-    title: str = Form(...),
-    rating: float = Form(...),
-    author: str = Form(...),
-    file: UploadFile = File(...),
-):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    if not file.filename.endswith(".docx"):
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST.value,
-            detail="Uploaded file must be a DOCX file.",
-        )
-
-    try:
-        document = Document(file.file)
-        text = "\n".join([paragraph.text for paragraph in document.paragraphs])
-
-        if not text.strip():
-            raise HTTPException(
-                status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
-                detail="No readable text found in the DOCX file.",
-            )
-
-        cursor.execute(
-            """
-            INSERT INTO messages (title, rating, message, author)
-            VALUES (%s, %s, %s, %s)
-            RETURNING id, sent_at
-            """,
-            (title, rating, text, author),
-        )
-        conn.commit()
-        message_id, sent_at = cursor.fetchone()
-
-        return {
-            "id": message_id,
-            "sent_at": sent_at,
-            "title": title,
-            "rating": rating,
-            "message": text,
-            "author": author,
-        }
-
-    except psycopg2.Error as e:
-        logging.error(f"Database operation failed: {e}")
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
-            detail="Database operation failed",
-        )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
-            detail=f"Error processing the DOCX file: {str(e)}",
-        )
-
-
-@app.post("/history/text")
-async def save_history_element(msg: Message):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    if not (0 <= msg.rating <= 100):
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST.value,
-            detail="Rating must be between 0 and 100.",
-        )
-    
-    try:
-        cursor.execute(
-            """
-            INSERT INTO messages (title, rating, message, author)
-            VALUES (%s, %s, %s, %s)
-            RETURNING id, sent_at
-            """,
-            (msg.title, msg.rating, msg.message, msg.author),
-        )
-        conn.commit()
-        message_id, sent_at = cursor.fetchone()
-        return {
-            "id": message_id,
-            "sent_at": sent_at,
-            "title": msg.title,
-            "rating": msg.rating,
-            "message": msg.message,
-            "author": msg.author,
-        }
-    except psycopg2.Error as e:
-        logging.error(f"Database operation failed: {e}")
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
-            detail="Database operation failed",
-        )
-    finally:
-        cursor.close()
-        conn.close()
-
-
-@app.get("/history", response_model=List[MessageResponse])
+@app.get("/history", response_model=List[AssessmentResponse])
 async def get_history_by_author_or_id(
     author: Optional[str] = None, message_id: Optional[int] = None
 ):
@@ -305,7 +138,7 @@ async def get_history_by_author_or_id(
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cursor:
-                query = "SELECT id, title, rating, message, author, sent_at FROM messages WHERE"
+                query = "SELECT * FROM plagiarisms WHERE"
                 params = []
 
                 conditions = []
@@ -326,18 +159,28 @@ async def get_history_by_author_or_id(
                         detail="No messages found.",
                     )
 
-                result = [
-                    MessageResponse(
-                        id=message[0],
-                        title=message[1],
-                        rating=message[2],
-                        message=message[3],
-                        author=message[4],
-                        sent_at=message[5].isoformat(),
+                result = []
+                for message in messages:
+                    id = message[0]
+                    title = message[1]
+                    plagiarism_result = message[2]["plagiarism"]
+                    plagiarisms_result_other_lang = message[2]["plagiarisms_other_lang"]
+                    rating = message[2]["rating"]
+                    rating_other_lang = message[2]["rating_other_lang"]
+                    uploaded_text = message[3]
+                    author = message[4]
+                    sent_at = message[5]
+                    AssessmentResponse(
+                        assessment_id=id,
+                        title=title,
+                        plagiarisms=plagiarism_result,
+                        plagiarisms_other_lang=plagiarisms_result_other_lang,
+                        rating=rating,
+                        rating_other_lang=rating_other_lang,
+                        uploaded_text=uploaded_text,
+                        author=author,
+                        sent_at=sent_at.isoformat(),
                     )
-                    for message in messages
-                ]
-
                 return result
 
     except HTTPException as http_error:
@@ -361,7 +204,7 @@ async def delete_history_element(message_id: int):
     cursor = conn.cursor()
 
     try:
-        cursor.execute("SELECT * FROM messages WHERE id = %s;", (message_id,))
+        cursor.execute("SELECT * FROM plagiarisms WHERE id = %s;", (message_id,))
         message = cursor.fetchone()
 
         if not message:

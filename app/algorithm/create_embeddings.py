@@ -1,13 +1,14 @@
 from nltk.tokenize import sent_tokenize
 from nltk.langnames import langname
 from itertools import batched
-from nltk import download
 from openai import OpenAI, OpenAIError
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Optional
 
 
-def create_embeddings(text: str, language: str, model_name: str, client: OpenAI) -> Optional[list[float]]:
+def create_embeddings(
+    text: str, language: str, model_name: str, client: OpenAI
+) -> Optional[list[float]]:
     """
     Function to create embeddings from text
 
@@ -30,7 +31,9 @@ def create_embeddings(text: str, language: str, model_name: str, client: OpenAI)
         return None
 
     try:
-        embeddings = list(map(lambda x: x.embedding, response.data))  # converting response to list of lists of embeddings
+        embeddings = list(
+            map(lambda x: x.embedding, response.data)
+        )  # converting response to list of lists of embeddings
     except AttributeError as e:
         print(f"OpenAI API respone without data {e}")
         return None
@@ -38,7 +41,9 @@ def create_embeddings(text: str, language: str, model_name: str, client: OpenAI)
     return embeddings, sentences
 
 
-def create_embeddings_multithreading(text: str, language: str, model_name: str, client: OpenAI) -> Optional[List[float]]:
+def create_embeddings_multithreading(
+    text: str, language: str, model_name: str, client: OpenAI
+) -> Optional[List[float]]:
     """
     Function to create embeddings from text with multithreading support.
     Returns a list of floats (vectors) or None if error happened
@@ -66,7 +71,10 @@ def create_embeddings_multithreading(text: str, language: str, model_name: str, 
             return None
 
     with ThreadPoolExecutor() as executor:
-        futures = {executor.submit(fetch_embeddings, text_batch, i * 8): i for i, text_batch in enumerate(batched(sentences, 8))}
+        futures = {
+            executor.submit(fetch_embeddings, text_batch, i * 8): i
+            for i, text_batch in enumerate(batched(sentences, 8))
+        }
 
         for future in as_completed(futures):
             result = future.result()
@@ -75,4 +83,6 @@ def create_embeddings_multithreading(text: str, language: str, model_name: str, 
             else:
                 return None  # this is so when an error has happend in fetch_embedding
 
-    return [embedding for _, embedding in sorted(embeddings, key=lambda x: x[0])], sentences
+    return [
+        embedding for _, embedding in sorted(embeddings, key=lambda x: x[0])
+    ], sentences
