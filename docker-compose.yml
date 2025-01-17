@@ -8,7 +8,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - ENV_VAR_NAME=value
+      - PGHOST='ep-purple-pine-a59psy9o.us-east-2.aws.neon.tech'
+      - PGDATABASE='db'
+      - PGUSER='db_owner'
+      - PGPASSWORD='X0dgIo5FGcMV'
+      - VECTOR_LENGTH=1536
+      - MODEL_NAME='text-embedding-ada-002'
+      - OPENAI_API_KEY='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'
 
   frontend:
     build:

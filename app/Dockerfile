@@ -12,6 +12,8 @@ RUN poetry config virtualenvs.in-project true
 
 RUN poetry install --no-root --only main
 
+RUN poetry run python -c "import nltk; nltk.download('bcp47')"
+
 COPY . .
 
 ENV PATH="/app/.venv/bin:$PATH"
