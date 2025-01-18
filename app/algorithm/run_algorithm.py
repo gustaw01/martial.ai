@@ -60,7 +60,24 @@ def reduce_plagiarisms(plagiarisms: list, split_text: list[str]):
     return reduced_plagiarisms, score
 
 
-def run_algorithm(text: str, language: str):
+def run_algorithm(text: str, language: str) -> dict:
+    """
+    Functions runs all functions defined in /algorithm to produce final plagiarism assessment
+    
+    Args:
+        text (str): Text given by the user to get plagiasism assessment
+        language (str): Two letter code to identify language of a document
+
+    Returns:
+
+        dict {
+            plagiarisms (list): List of plagiarism assessments in the languge of the document
+            plagiarisms_other_lang (list): List of plagiarism assessments in other langauges
+            rating (float): plagiarism rating
+            rating_other_lang (float): plagiarism rating in other languages
+        }
+    """
+
     openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
     conn = psycopg2.connect(

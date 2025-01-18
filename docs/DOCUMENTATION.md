@@ -77,12 +77,71 @@ W przypadku błędu zwraca None, natomiast przy sukcesie zwraca listę wektorów
 Zaimplementowana również z obsługą wielowątkowości pozwalając na równoległe przetwarzanie partii zdań.
 Tekst jest dzielony na partie (batch) po 8 zdań, a każda partia przetwarzana jest w osobnym wątku.Wyniki są zbierane i sortowane według kolejności oryginalnych zdań, aby zachować poprawność kolejności wektorów.
 
+```python
+def create_embeddings(text: str, language: str, model_name: str, client: OpenAI) -> Optional[list[float]]:
+    """
+    Function to create embeddings from text
+
+    Args:
+        text (str): The text to be embedded.
+        language (str): The language of the text.
+        model_name (str): The OpenAI model to use for embeddings.
+        client (OpenAI): The OpenAI API client.
+
+    Returns:
+        Optional[List[float]]: A sorted list of embeddings if successful, or None on error.
+    """
+...
+```
+
+```python
+
+def create_embeddings_multithreading(text: str, language: str, model_name: str, client: OpenAI) -> Optional[List[float]]:
+    """
+    Function to create embeddings from text with multithreading support.
+    Returns a list of floats (vectors) or None if error happened
+
+    Args:
+        text (str): The text to be embedded.
+        language (str): The language of the text.
+        model_name (str): The OpenAI model to use for embeddings.
+        client (OpenAI): The OpenAI API client.
+
+    Returns:
+        Optional[List[float]]: A sorted list of embeddings if successful, or None on error.
+    """
+...
+```
+
 * **blast** <br>
 Funkcja służy do analizy podobieństwa zdań w dokumentach za pomocą reprezentacji (embeddings), metryki kosinusowej i danych przechowywanych w bazie PostgreSQL.
 Porównuje osadzenia zdań dokumentu docelowego (target_embeddings) z osadzeniami zdań pobranymi z bazy danych (document_data).
 Dla zdań o podobieństwie powyżej zadanego progu (threshold) wyszukuje sekwencje dopasowanych zdań w określonych granicach (parametry max_forward i max_backward).
 Funkcja zwraca listę sekwencji zawierających szczegóły dopasowania: identyfikatory zdań, ich treść, indeks w dokumencie oraz wartość podobieństwa.
 Umożliwia ro porównanie zawartości różnych dokumentów na podstawie ich podobieństwa semantycznego.
+
+```python
+
+def blast(
+    target_embeddings, document_data, threshold=0.8, max_forward=5, max_backward=5
+):
+    """
+    Args:
+        target_embeddings: List of sentence embeddings to compare (constituting a document).
+        document_data: List of sentences from the database document.
+        threshold: Minimum cosine similarity to consider a sentence as similar.
+        max_forward: Maximum number of sentences forward to check for a match in the database document.
+        max_backward: Maximum number of sentences backward to check for a match in the database document.
+
+    Returns:
+        List of sequences of similar sentences.
+        sentence_id: sentence ID in database
+        text: text of the sentence from database
+        similarity: cosine similarity of target and database sentence
+        matched_target_id: index of the target sentence that was matched
+    """
+...
+```
 
 * **run_algorithm** <br>
 Funkcja run_algorithm analizuje podany tekst w celu wykrycia plagiatów zarówno w tym samym języku, jak i w innych językach, wykorzystując reprezentacje liczbowe zdań i porównania semantyczne.
@@ -92,6 +151,26 @@ Po znalezieniu najbardziej podobnych dokumentów, funkcja analizuje mierzy dysta
 Na końcu wyniki są redukowane, aby wybrać najbardziej znaczące dopasowania dla każdego zdania z tekstu wejściowego.
 Funkcja zwraca informacje o potencjalnych plagiatach w obu grupach językowych, a także ogólną ocenę plagiatu `rating` dla każdego przypadku.
 
+```python
+def run_algorithm(text: str, language: str) -> dict:
+    """
+    Functions runs all functions defined in /algorithm to produce final plagiarism assessment
+    
+    Args:
+        text (str): Text given by the user to get plagiasism assessment
+        language (str): Two letter code to identify language of a document
+
+    Returns:
+
+        dict {
+            plagiarisms (list): List of plagiarism assessments in the languge of the document
+            plagiarisms_other_lang (list): List of plagiarism assessments in other langauges
+            rating (float): plagiarism rating
+            rating_other_lang (float): plagiarism rating in other languages
+        }
+    """
+...
+```
 
 ### Serwer webowy
 
@@ -100,7 +179,57 @@ Funkcja zwraca informacje o potencjalnych plagiatach w obu grupach językowych, 
 
 ### Baza danych
 #### Dane i wczytanie danych
-#### Tabele
+Do celów prezentacji możliwości systemu wybraliśmy publicznie dostępne dane z serwisu wikipedia.
+W bazie danch zgormadziliśmy 10 000 rekordów (zdań) w trzech językach pobranych za pomocą skryptu `setup.py` W którym zostały zdefiniowne natępujące funkcje:
+
+**`list_wikipedia_titles`** <br>
+Funkcja wyszukuje tytuły artykułów na Wikipedii na podstawie podanego zapytania i języka. 
+Wysyła zapytanie do API Wikipedii i zwraca listę tytułów odpowiadających zapytaniu.
+
+```python
+def list_wikipedia_titles(
+    search_query: str, n: int = 20, language: str = "en"
+) -> list[str]:
+...
+```
+
+**`get_wikipedia_text`** <br>
+Funkcja pobiera pełny tekst artykułu z Wikipedii, na podstawie zadanego tytułu i języka. 
+Oczyszcza pobrany tekst z niepotrzebnych elementów, takich jak tagi HTML, linki zewnętrzne, czy zbędne formatowanie.
+
+```python
+def get_wikipedia_text(page_title: str, language: str = "en") -> str | None:
+...
+```
+
+**`get_embedding_from_sents`** <br>
+Funkcja generuje reprezentacje liczbowe dla listy zdań, korzystając z modelu OpenAI.
+Wykorzystuje API do uzyskania wektorów reprezentujących każde zdanie i zwraca je jako listę list.
+
+```python
+def get_embedding_from_sents(
+    texts: list[str], model_name: str, client: OpenAI
+) -> list[list[float]]:
+...
+```
+
+**`batch_db_upload`** <br>
+Funkcja zapisuje zdania oraz ich wektory w bazie danych w trybie wsadowym. Dba o poprawność danych, generując dynamicznie zapytanie SQL i zapisując dane w określonej tabeli.
+
+```python
+def batch_db_upload(
+    embeddings: list[list[float]],
+    texts: list[str],
+    title: str,
+    language: str,
+    index_in_doc: list[int],
+    table_name: str,
+    cur,
+) -> None:
+...
+```
+
+#### **Tabele**
 * **Tabela `embeddings` została stowrzona za pomocą kwerendy** <br>
 ```sql
 CREATE TABLE embeddings (
@@ -141,3 +270,18 @@ CREATE TABLE plagiarisms (
 ## Frontend
 
 ## Testy
+
+```txt
+---------- coverage: platform darwin, python 3.12.2-final-0 ----------
+Name                                 Stmts   Miss  Cover
+--------------------------------------------------------
+app/algorithm/__init__.py                0      0   100%
+app/algorithm/blast.py                  82      7    91%
+app/algorithm/create_embeddings.py      38     10    74%
+app/algorithm/find_k_nearest.py         20      4    80%
+app/algorithm/run_algorithm.py          59      0   100%
+app/main.py                            121     21    83%
+app/models.py                           15      0   100%
+--------------------------------------------------------
+TOTAL                                  335     42    87%
+```
