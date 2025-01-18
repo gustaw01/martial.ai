@@ -25,6 +25,7 @@ Komunikacja między interfejsem użytkownika a serwerem webowym jest wykonywana 
   - Konteneryzacja
   - Baza danych oparta na rzeczywistych dokumentach (arytkułach/stronach) z internetu
   - Modyfikacja algorytmu BLAST do optymalizacji wyszukiwania podobieństw w bazie danych
+  - Integracja z Nginx
 
 ### **COULD HAVE**
   - Implementacja podstawowych mechanizmów ochrony danych, takich jak szyfrowanie przesyłanych dokumentów
@@ -45,6 +46,44 @@ Komunikacja między interfejsem użytkownika a serwerem webowym jest wykonywana 
   - OCR - przetwarzanie tesktu z obrazów
 
 ## Backend
+
+### Endpointy
+
+`/plagiarism_assessment` (POST): Ten endpoint tworzy ocenę plagiatu dla danego dokumentu lub tekstu. Akceptuje plik (PDF lub DOCX) lub zwykły tekst, wraz z metadanymi, takimi jak język, autor i tytuł, i zwraca wyniki oceny.
+
+`/history` (GET): Ten endpoint pobiera historię ocen plagiatu na podstawie podanego autora lub ID oceny. Zwraca listę ocen pasujących do podanych kryteriów.
+
+`/history/{message_id}` (DELETE): Ten endpoint usuwa konkretną ocenę plagiatu z historii na podstawie podanego ID wiadomości. Potwierdza usunięcie w przypadku sukcesu lub zgłasza błąd, jeśli ocena nie zostanie znaleziona.
+
+### Model odpowedzi
+Model `AssessmentResponse` wykorzystywany jest do zwracania wyników analizy plagiatu, zarówno w języku źródłowym, jak i w innych językach. Umożliwia analizę szczegółową oraz przechowywanie metadanych dla celów archiwizacji i raportowania.
+```python
+class AssessmentResponse(BaseModel):
+    plagiarisms: list[PlagiarismSentence]
+    plagiarisms_other_lang: list[PlagiarismSentence]
+    assessment_id: int
+    sent_at: str
+    rating: float
+    rating_other_lang: float
+    title: str
+    author: str
+```
+- `plagiarisms: list[PlagiarismSentence]`
+Lista wykrytych fragmentów plagiatu w języku oryginalnym tekstu z ich oceną podobieństwa.
+- `plagiarisms_other_lang: list[PlagiarismSentence]`
+Lista wykrytych fragmentów plagiatu w innych językach z ich oceną podobieństwa.
+- `assessment_id: int`
+Unikalny identyfikator oceny plagiatu.
+- `sent_at: str`
+Data i czas wysłania oceny.
+- `rating: float`
+Ocena procentowa określająca stopień plagiatu w języku oryginalnym.
+- `rating_other_lang: float`
+Ocena procentowa określająca stopień plagiatu w innych językach.
+- `title: str`
+Tytuł dokumentu poddanego ocenie.
+- `author: str`
+Autor dokumentu poddanego ocenie.
 
 ### Algorytm
 
@@ -78,14 +117,6 @@ Zdanie jest osadzane za pomocą komercyjnego API oferowanego przez OpenAI, odpow
     * Używany do uzyskania liczbowych reprezentacji słów
 
 <br>
-
-### Główne endpointy
-
-`/plagiarism_assessment` (POST): Ten endpoint tworzy ocenę plagiatu dla danego dokumentu lub tekstu. Akceptuje plik (PDF lub DOCX) lub zwykły tekst, wraz z metadanymi, takimi jak język, autor i tytuł, i zwraca wyniki oceny.
-
-`/history` (GET): Ten endpoint pobiera historię ocen plagiatu na podstawie podanego autora lub ID oceny. Zwraca listę ocen pasujących do podanych kryteriów.
-
-`/history/{message_id}` (DELETE): Ten endpoint usuwa konkretną ocenę plagiatu z historii na podstawie podanego ID wiadomości. Potwierdza usunięcie w przypadku sukcesu lub zgłasza błąd, jeśli ocena nie zostanie znaleziona.
 
 ### Funkcje zawarte w kodzie
 * **find_k_nearest** <br>
