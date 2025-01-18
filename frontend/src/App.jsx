@@ -11,6 +11,7 @@ import HistoryView from './features/History/HistoryView'
 import './App.css'
 import './input.css'
 import AddHistory from './features/History/AddHistory'
+import AddPlagiarismAssessment from './features/PlagiarismAssessment/AddPlagiarismAssessment'
 
 function App() {
 
@@ -27,6 +28,8 @@ function App() {
           <Route path="history/new-file" element={ <AddHistoryByFile /> } />
           <Route path="history" element={ <HistoryList/> } />
           <Route path="history/:historyId" element={ <HistoryView />} />
+
+          <Route path="plagiarism/new" element={ <AddPlagiarismAssessment /> } />
         </Route>
       </Route>
     </Routes>

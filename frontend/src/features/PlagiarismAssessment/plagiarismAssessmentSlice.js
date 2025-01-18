@@ -8,7 +8,7 @@ const initialState = plagiarismAssessmentAdapter.getInitialState();
 export const plagiarismAssessmentApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getPlagiarismAssessment: builder.query({
-            query: () => '/plagiarism-assessment',
+            query: () => '/plagiarism_assessment',
             transformResponse: (responseData) =>
                 plagiarismAssessmentAdapter.setAll(initialState, responseData),
             providesTags: (result, error, arg) =>
@@ -18,15 +18,28 @@ export const plagiarismAssessmentApiSlice = apiSlice.injectEndpoints({
                         ...result.ids.map((id) => ({ type: 'PlagiarismAssessment', id })),
                     ]
                     : [{ type: 'PlagiarismAssessment', id: "LIST" }],
-        })
+        }),
+        addNewPlagiarismAssessment: builder.mutation({
+            query: (newPlagiarismAssessment) => {
+                const isFormData = newPlagiarismAssessment instanceof FormData;
+                return {
+                    url: '/plagiarism-assessment',
+                    method: 'POST',
+                    body: newPlagiarismAssessment,
+                    headers: isFormData ? undefined : { 'Content-Type': 'application/json' },
+                };
+            },
+            invalidatesTags: [{ type: 'PlagiarismAssessment', id: "LIST" }],
+        }),
     })
 });
 
 export const {
-    useGetPlagiarismAssessmentQuery
+    useGetPlagiarismAssessmentQuery,
+    useAddNewPlagiarismAssessmentMutation,
 } = plagiarismAssessmentApiSlice;
 
-export const selectPlagiarismAssessmentResult = plagiarismAssessmentAdapter.endpoints.getPlagiarismAssessment.select();
+export const selectPlagiarismAssessmentResult = plagiarismAssessmentApiSlice.endpoints.getPlagiarismAssessment.select();
 
 const selectPlagiarismAssessmentData = createSelector(
     selectPlagiarismAssessmentResult,
