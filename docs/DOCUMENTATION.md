@@ -45,9 +45,29 @@ Komunikacja między interfejsem użytkownika a serwerem webowym jest wykonywana 
   - Wiadomość mailowa o wyniku analizy
   - OCR - przetwarzanie tesktu z obrazów
 
-## Backend
+## **Użyte technologie**
+![Schemat działania martial.AI](rozwiazanie.png "Schemat działania martial.AI")
+* **Python**
+    * fastapi - biblioteka używana do stworzenia interfesu API w serwerze webowym 
+    * nltk - Natual Language Toolkit; paczka umożliwiająca obróbkę języka naturalnego
+    * psycopg2 - biblioteka umożliwiająca połączenie się z bazą danych
+* **Postgresql**
+    * pgvector - rozszerzenie umożliwiające przechowywanie 
+* **API OpenAI**
+    * Używany do uzyskania liczbowych reprezentacji słów
+* **React**
+    * React - framework użyty do budowy interfejsu użytkownika
+    * React-router-dom - obsługuje routing w aplikacjach React
+    * Tailwind css - stylizacja i przetwarzanie CSS
+    * Post css - stylizacja i przetwarzanie CSS
+    * Redux toolkit - upraszcza zarządzanie stanem aplikacji
+    * Daisyui - biblioteka gotowych komponentów UI oparta na Tailwind CSS
 
-### Endpointy
+<br>
+
+## **Backend**
+
+### **Endpointy**
 
 `/plagiarism_assessment` (POST): Ten endpoint tworzy ocenę plagiatu dla danego dokumentu lub tekstu. Akceptuje plik (PDF lub DOCX) lub zwykły tekst, wraz z metadanymi, takimi jak język, autor i tytuł, i zwraca wyniki oceny.
 
@@ -55,7 +75,7 @@ Komunikacja między interfejsem użytkownika a serwerem webowym jest wykonywana 
 
 `/history/{message_id}` (DELETE): Ten endpoint usuwa konkretną ocenę plagiatu z historii na podstawie podanego ID wiadomości. Potwierdza usunięcie w przypadku sukcesu lub zgłasza błąd, jeśli ocena nie zostanie znaleziona.
 
-### Model odpowedzi
+### **Model odpowedzi**
 Model `AssessmentResponse` wykorzystywany jest do zwracania wyników analizy plagiatu, zarówno w języku źródłowym, jak i w innych językach. Umożliwia analizę szczegółową oraz przechowywanie metadanych dla celów archiwizacji i raportowania.
 ```python
 class AssessmentResponse(BaseModel):
@@ -85,16 +105,16 @@ Tytuł dokumentu poddanego ocenie.
 - `author: str`
 Autor dokumentu poddanego ocenie.
 
-### Algorytm
+### **Algorytm**
 
-#### Reprezentacje zdań
+#### **Reprezentacje zdań**
 **Reprezentacje liczbowe słów** - znane również jako osadzanie słów, to technika stosowana w przetwarzaniu języka naturalnego, szczególnie w dużych modelach językowych. 
 Polega ona na przedstawianiu słów za pomocą wektorów liczbowych, w których słowa o zbliżonym znaczeniu są odwzorowywane jako wektory znajdujące się blisko siebie w wielowymiarowej przestrzeni wektorowej.
 Dzięki temu możliwe jest przestwienie różnic semantycznych między wyrazami w sposób zrozumiały dla modeli komputerowych. <br><br>
 W tym projekcie korzystamy z reprezentacji całych zdań w tekscie przekazanym przez użytkownika. 
 Zdanie jest osadzane za pomocą komercyjnego API oferowanego przez OpenAI, odpowiedzią z tego API jest wektor o dlugości 1536 liczb zmiennoprzecinkowych z zakresu pomiędzy -1 a 1. 
 
-#### Schemat i zasada działania
+#### **Schemat i zasada działania**
 
 ![Schemat działania martial.AI](proces.drawio.png "Schemat działania martial.AI")
 
@@ -105,18 +125,6 @@ Zdanie jest osadzane za pomocą komercyjnego API oferowanego przez OpenAI, odpow
 5. Na podstawie zwróconych zdań obliczane jest podobieństwo między dokumentami z bazy danych a reprezentacjami tekstu użytkownika
 6. Wynik jest przekazywany do interfesu użytkownika
 
-### Użyte technologie
-![Schemat działania martial.AI](rozwiazanie.png "Schemat działania martial.AI")
-* **Python**
-    * fastapi - biblioteka używana do stworzenia interfesu API w serwerze webowym 
-    * nltk - Natual Language Toolkit; paczka umożliwiająca obróbkę języka naturalnego
-    * psycopg2 - biblioteka umożliwiająca połączenie się z bazą danych
-* **Postgresql**
-    * pgvector - rozszerzenie umożliwiające przechowywanie 
-* **API OpenAI**
-    * Używany do uzyskania liczbowych reprezentacji słów
-
-<br>
 
 ### Funkcje zawarte w kodzie
 * **find_k_nearest** <br>
@@ -155,7 +163,12 @@ Zaimplementowana również z obsługą wielowątkowości pozwalając na równole
 Tekst jest dzielony na partie (batch) po 8 zdań, a każda partia przetwarzana jest w osobnym wątku.Wyniki są zbierane i sortowane według kolejności oryginalnych zdań, aby zachować poprawność kolejności wektorów.
 
 ```python
-def create_embeddings(text: str, language: str, model_name: str, client: OpenAI) -> Optional[list[float]]:
+def create_embeddings(
+    text: str, 
+    language: str, 
+    model_name: str, 
+    client: OpenAI
+) -> Optional[list[float]]:
     """
     Function to create embeddings from text
 
@@ -172,8 +185,12 @@ def create_embeddings(text: str, language: str, model_name: str, client: OpenAI)
 ```
 
 ```python
-
-def create_embeddings_multithreading(text: str, language: str, model_name: str, client: OpenAI) -> Optional[List[float]]:
+def create_embeddings_multithreading(
+    text: str, 
+    language: str, 
+    model_name: str, 
+    client: OpenAI
+) -> Optional[List[float]]:
     """
     Function to create embeddings from text with multithreading support.
     Returns a list of floats (vectors) or None if error happened
@@ -200,7 +217,11 @@ Umożliwia ro porównanie zawartości różnych dokumentów na podstawie ich pod
 ```python
 
 def blast(
-    target_embeddings, document_data, threshold=0.8, max_forward=5, max_backward=5
+    target_embeddings, 
+    document_data, 
+    threshold=0.8, 
+    max_forward=5, 
+    max_backward=5
 ):
     """
     Args:
@@ -273,7 +294,9 @@ Funkcja pobiera pełny tekst artykułu z Wikipedii, na podstawie zadanego tytuł
 Oczyszcza pobrany tekst z niepotrzebnych elementów, takich jak tagi HTML, linki zewnętrzne, czy zbędne formatowanie.
 
 ```python
-def get_wikipedia_text(page_title: str, language: str = "en") -> str | None:
+def get_wikipedia_text(
+    page_title: str, language: str = "en"
+) -> str | None:
 ...
 ```
 
@@ -348,6 +371,10 @@ CREATE TABLE plagiarisms (
 ## Frontend
 
 ## Testy
+
+Testy jednostkowe wykonane za pomocą biblioteki `pytest`.
+Pokrywają one funkcje zawarte w `app/algorithm` oraz testują endpointy w `app/main.py` w 87%.
+Poniżej zamieszono tabelę zaiwerającą wynik skryptu `pytest-cov`.
 
 ```txt
 ---------- coverage: platform darwin, python 3.12.2-final-0 ----------
