@@ -41,7 +41,9 @@ Zdanie jest osadzane za pomocą komercyjnego API oferowanego przez OpenAI, odpow
 * **API OpenAI**
     * Używany do uzyskania liczbowych reprezentacji słów
 
-#### Funkcje zawarte w kodzie
+<br>
+
+### Funkcje zawarte w kodzie
 * **find_k_nearest** <br>
 Funkcja find_k_nearest wyszukuje K najbliższych wektorów w bazie danych względem podanego wektora, wykorzystując metrykę kosinusową.
 Sprawdza poprawność długości i typu wektora, a opcjonalnie umożliwia wykluczenie wyników w określonym języku. Zapytanie SQL sortuje wyniki według odległości kosinusowej, zwracając informacje o tytułach dokumentów, językach, zdaniach, indeksach oraz odległościach kosinusowych od zadanego wektora. 
@@ -176,9 +178,11 @@ def run_algorithm(text: str, language: str) -> dict:
 
 * Endpoint /embeddings_assessment
 
+<br>
 
-### Baza danych
-#### Dane i wczytanie danych
+
+## Baza danych
+### Dane i wczytanie danych
 Do celów prezentacji możliwości systemu wybraliśmy publicznie dostępne dane z serwisu wikipedia.
 W bazie danch zgormadziliśmy 10 000 rekordów (zdań) w trzech językach pobranych za pomocą skryptu `setup.py` W którym zostały zdefiniowne natępujące funkcje:
 
@@ -228,8 +232,9 @@ def batch_db_upload(
 ) -> None:
 ...
 ```
+<br>
 
-#### **Tabele**
+### **Tabele**
 * **Tabela `embeddings` została stowrzona za pomocą kwerendy** <br>
 ```sql
 CREATE TABLE embeddings (
@@ -265,6 +270,8 @@ CREATE TABLE plagiarisms (
 3. `plagiarism_result` - pole typu json, przechowuje nieustrukturyzowane dane będące wynikiem oceny plagiatu (obiekt zwaracany przez funkcje `run_algorithm`)
 4. `author` - nazwa użytkownika 
 5. `sent_at` - znacznik czasu wykonania oceny plagaitu
+
+<br>
 
 
 ## Frontend
