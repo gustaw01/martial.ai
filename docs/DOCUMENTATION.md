@@ -8,6 +8,42 @@ Liczbowe reprezentacje zdań zawierają informacje o znaczeniu tekstu bez wzglę
 Wyniki oceny plagiatu są wyświetlane w interfejsie użytkownika napisanym w języku JavaScript z użyciem framework React.
 Komunikacja między interfejsem użytkownika a serwerem webowym jest wykonywana za pomocą REST API.
 
+# Analiza Priorytetów Metodą MoSCoW
+
+### **MUST HAVE**
+  - Sprawdznenie pobieństwa wprowadzonego dokumentu do dokumentów w bazie danych.
+  - Obsługa dokumentów w formie plików w formacie `.pdf` `.docx` oraz zwykłego tekstu.
+  - Moliwość podejrzenia zapisanych ocen.
+  - Organizacja pracy w JIRA (praca w metodologii SCRUM)
+  - Repozytorium GitHub
+
+
+### **SHOULD HAVE**
+  - Dokumentacja
+  - Obsługa dokumentów w wielu językach
+  - Obsługa użytkowników (logowanie/rejestracja)
+  - Konteneryzacja
+  - Baza danych oparta na rzeczywistych dokumentach (arytkułach/stronach) z internetu
+  - Modyfikacja algorytmu BLAST do optymalizacji wyszukiwania podobieństw w bazie danych
+
+### **COULD HAVE**
+  - Implementacja podstawowych mechanizmów ochrony danych, takich jak szyfrowanie przesyłanych dokumentów
+  - Wyświetlanie konkretnych podobnych zdań oraz ich podobieństwa
+  - Integracja z Vault
+  - CI/CD (w tym testy)
+  - Inne znane metody wykrywania plagiatu jako część algorytmu
+  - Udostępnianie wyników między użytkownikami
+  - Wsparcie innych formatów plików np. `.odt` czy `txt`
+  - Automatyzacja backupów bazy danych
+  - Personalizacja wizualna interfejsu
+  - Interfejs przyjazny osób z niepełnosprawnościami (czytanie tekstu, wysoki kontrast, wielkośc liter)
+
+### **WON'T HAVE**
+  - Hosting
+  - Aplikacja desktpowa/mobilna
+  - Wiadomość mailowa o wyniku analizy
+  - OCR - przetwarzanie tesktu z obrazów
+
 ## Backend
 
 ### Algorytm
@@ -42,6 +78,14 @@ Zdanie jest osadzane za pomocą komercyjnego API oferowanego przez OpenAI, odpow
     * Używany do uzyskania liczbowych reprezentacji słów
 
 <br>
+
+### Główne endpointy
+
+`/plagiarism_assessment` (POST): Ten endpoint tworzy ocenę plagiatu dla danego dokumentu lub tekstu. Akceptuje plik (PDF lub DOCX) lub zwykły tekst, wraz z metadanymi, takimi jak język, autor i tytuł, i zwraca wyniki oceny.
+
+`/history` (GET): Ten endpoint pobiera historię ocen plagiatu na podstawie podanego autora lub ID oceny. Zwraca listę ocen pasujących do podanych kryteriów.
+
+`/history/{message_id}` (DELETE): Ten endpoint usuwa konkretną ocenę plagiatu z historii na podstawie podanego ID wiadomości. Potwierdza usunięcie w przypadku sukcesu lub zgłasza błąd, jeśli ocena nie zostanie znaleziona.
 
 ### Funkcje zawarte w kodzie
 * **find_k_nearest** <br>
