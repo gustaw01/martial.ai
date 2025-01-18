@@ -249,10 +249,6 @@ def run_algorithm(text: str, language: str) -> dict:
 ...
 ```
 
-### Serwer webowy
-
-* Endpoint /embeddings_assessment
-
 <br>
 
 
