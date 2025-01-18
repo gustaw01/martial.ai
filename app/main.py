@@ -121,15 +121,16 @@ async def get_plagiarism_assessment(
     plagiarism_assessment["sent_at"] = sent_at.isoformat()
     plagiarism_assessment["author"] = author
     plagiarism_assessment["title"] = title
+    plagiarism_assessment["id"] = assessment_id
 
     return plagiarism_assessment
 
 
 @app.get("/history", response_model=List[AssessmentResponse])
 async def get_history_by_author_or_id(
-    author: Optional[str] = None, message_id: Optional[int] = None
+    author: Optional[str] = None, assessment_id: Optional[int] = None
 ):
-    if not author and not message_id:
+    if not author and not assessment_id:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST.value,
             detail="Neither id nor author provided.",
@@ -145,9 +146,9 @@ async def get_history_by_author_or_id(
                 if author:
                     conditions.append(" author = %s")
                     params.append(author)
-                if message_id:
+                if assessment_id:
                     conditions.append(" id = %s")
-                    params.append(message_id)
+                    params.append(assessment_id)
 
                 query += " AND ".join(conditions)
                 cursor.execute(query, tuple(params))
@@ -156,30 +157,33 @@ async def get_history_by_author_or_id(
                 if not messages:
                     raise HTTPException(
                         status_code=HTTPStatus.NOT_FOUND.value,
-                        detail="No messages found.",
+                        detail="No assessment found.",
                     )
 
                 result = []
                 for message in messages:
                     id = message[0]
                     title = message[1]
-                    plagiarism_result = message[2]["plagiarism"]
+                    plagiarisms_result = message[2]["plagiarisms"]
                     plagiarisms_result_other_lang = message[2]["plagiarisms_other_lang"]
                     rating = message[2]["rating"]
                     rating_other_lang = message[2]["rating_other_lang"]
                     uploaded_text = message[3]
                     author = message[4]
                     sent_at = message[5]
-                    AssessmentResponse(
-                        assessment_id=id,
-                        title=title,
-                        plagiarisms=plagiarism_result,
-                        plagiarisms_other_lang=plagiarisms_result_other_lang,
-                        rating=rating,
-                        rating_other_lang=rating_other_lang,
-                        uploaded_text=uploaded_text,
-                        author=author,
-                        sent_at=sent_at.isoformat(),
+
+                    result.append(
+                        AssessmentResponse(
+                            assessment_id=id,
+                            title=title,
+                            plagiarisms=plagiarisms_result,
+                            plagiarisms_other_lang=plagiarisms_result_other_lang,
+                            rating=rating,
+                            rating_other_lang=rating_other_lang,
+                            uploaded_text=uploaded_text,
+                            author=author,
+                            sent_at=sent_at.isoformat(),
+                        )
                     )
                 return result
 
@@ -209,10 +213,9 @@ async def delete_history_element(message_id: int):
 
         if not message:
             raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND.value, detail="Message not found"
+                status_code=HTTPStatus.NOT_FOUND.value, detail="No assessment found."
             )
-
-        cursor.execute("DELETE FROM messages WHERE id = %s;", (message_id,))
+        cursor.execute("DELETE FROM plagiarisms WHERE id = %s;", (message_id,))
         conn.commit()
 
         return "Deleted successfully."
