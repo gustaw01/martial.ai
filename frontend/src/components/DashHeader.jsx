@@ -12,13 +12,13 @@ const DashHeader = () => {
                 <Link to="/dash/history" className="navigation-item btn btn-ghost">
                     Historia
                 </Link>
-                <Link to="/dash/history/new" className="navigation-item btn btn-ghost">
+                <Link to="/dash/plagiarism/new" className="navigation-item btn btn-ghost">
                     Zweryfikuj nową pracę
                 </Link>
-                <Link to="/dash/history/new-file" className="navigation-item btn btn-ghost">
+                {/* <Link to="/dash/history/new-file" className="navigation-item btn btn-ghost">
                     Zweryfikuj nowy plik
-                </Link>
-                <Link to="/" className="navigation-item btn btn-ghost">Wyloguj się</Link>
+                </Link> */}
+                {/* <Link to="/" className="navigation-item btn btn-ghost">Wyloguj się</Link> */}
             </nav>
         </header>
     )

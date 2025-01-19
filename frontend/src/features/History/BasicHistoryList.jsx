@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 import Loading from "../../components/Loading";
 
 const getProgressBarColor = (rating) => {
-    if (rating <= 25) return "progress progress-error w-56";
-    if (rating <= 50) return "progress progress-warning w-56";
-    if (rating <= 75) return "progress progress-info w-56";
-    return "progress progress-success w-56";
+    if (rating <= 0.25) return "progress progress-success w-full";
+    if (rating <= 0.50) return "progress progress-info w-full";
+    if (rating <= 0.75) return "progress progress-warning w-full";
+    return "progress progress-error w-full";
 }
 
 const BasicHistoryList = () => {
@@ -26,7 +26,7 @@ const BasicHistoryList = () => {
     let content
 
     if (isLoading) {
-        content = <Loading />
+        // content = <Loading />
     }
 
     if (isError) {
@@ -40,7 +40,7 @@ const BasicHistoryList = () => {
                 <Link to={`/dash/history/${history.id}`} key={history.id}>
                     <button className="btn btn-ghost" style={{ width: "100%" }}>
                         {history.title}
-                        <progress className={progressBarColor} value={history.rating} max="100"></progress>
+                        <progress className={progressBarColor} value={1 - history.rating} max="1"></progress>
                     </button>
                 </Link>
             );

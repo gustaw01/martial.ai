@@ -100,79 +100,84 @@ const AddPlagiarismAssessment = () => {
     };
 
     return (
-        <div className="history-form">
-            <h1 className="text-3xl font-bold mb-4">Dodaj nową pracę</h1>
+        <div className="history-form hero bg-base-200 min-h-screen">
+            <div className="hero-content flex-col lg:flex-row-reverse">
+                <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+                    <br />
+                    <h1 className="text-3xl font-bold mb-4">Dodaj nową pracę</h1>
 
-            <form onSubmit={handleSubmit}>
-                <div className="form-control w-full max-w-xs">
-                    <label htmlFor="title" className="label">
-                        <span className="label-text">Tytuł</span>
-                    </label>
-                    <input
-                        type="text"
-                        id="title"
-                        name="title"
-                        placeholder="Wpisz tytuł"
-                        className="input input-bordered w-full max-w-xs"
-                        value={formData.title}
-                        onChange={handleChange}
-                        required
-                    />
+                    <form className="card-body" onSubmit={handleSubmit}>
+                        <div className="form-control w-full max-w-xs">
+                            <label htmlFor="title" className="label">
+                                <span className="label-text">Tytuł</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                placeholder="Wpisz tytuł"
+                                className="input input-bordered w-full max-w-xs"
+                                value={formData.title}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+
+                        <div className="form-control w-full max-w-xs">
+                            <label htmlFor="text" className="label">
+                                <span className="label-text">Treść</span>
+                            </label>
+                            <textarea
+                                id="text"
+                                name="text"
+                                className="textarea textarea-bordered"
+                                value={formData.text}
+                                onChange={handleChange}
+                                disabled={disableText}
+                            />
+                        </div>
+
+                        <div className="form-control w-full max-w-xs">
+                            <label htmlFor="file" className="label">
+                                <span className="label-text">Plik</span>
+                            </label>
+                            <input
+                                type="file"
+                                id="file"
+                                name="file"
+                                className="file-input input-bordered w-full max-w-xs"
+                                onChange={handleFileChange}
+                                disabled={disableFile}
+                            />
+                        </div>
+
+                        <div className="form-control w-full max-w-xs">
+                            <label htmlFor="author" className="label">
+                                <span className="label-text">Język</span>
+                            </label>
+                            <select
+                                id="language"
+                                name="language"
+                                className="select select-bordered w-full max-w-xs"
+                                value={formData.language}
+                                onChange={handleChange}
+                                required
+                            >
+                                <option value="" disabled>
+                                    Wybierz język
+                                </option>
+                                <option value="pl">Polski</option>
+                                <option value="en">Angielski</option>
+                                <option value="fr">Francuski</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" className="btn">
+                            {isLoading ? "Dodawanie..." : "Dodaj pracę"}
+                        </button>
+                    </form>
                 </div>
-
-                <div className="form-control w-full max-w-xs">
-                    <label htmlFor="text" className="label">
-                        <span className="label-text">Treść</span>
-                    </label>
-                    <textarea
-                        id="text"
-                        name="text"
-                        className="textarea h-24"
-                        value={formData.text}
-                        onChange={handleChange}
-                        disabled={disableText}
-                    />
-                </div>
-
-                <div className="form-control w-full max-w-xs">
-                    <label htmlFor="file" className="label">
-                        <span className="label-text">Plik</span>
-                    </label>
-                    <input
-                        type="file"
-                        id="file"
-                        name="file"
-                        className="input input-bordered w-full max-w-xs"
-                        onChange={handleFileChange}
-                        disabled={disableFile}
-                    />
-                </div>
-
-                <div className="form-control w-full max-w-xs">
-                    <label htmlFor="author" className="label">
-                        <span className="label-text">Język</span>
-                    </label>
-                    <select
-                        id="language"
-                        name="language"
-                        className="select select-bordered w-full max-w-xs"
-                        value={formData.language}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="" disabled>
-                            Wybierz język
-                        </option>
-                        <option value="pl">Polski</option>
-                        <option value="en">Angielski</option>
-                        <option value="fr">Francuski</option>
-                    </select>
-                </div>
-
-                <button type="submit" className="btn">
-                    {isLoading ? "Dodawanie..." : "Dodaj pracę"}
-                </button>
-            </form>
+            </div>
         </div>
     )
 }
