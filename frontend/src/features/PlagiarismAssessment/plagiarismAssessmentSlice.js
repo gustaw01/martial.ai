@@ -23,7 +23,7 @@ export const plagiarismAssessmentApiSlice = apiSlice.injectEndpoints({
             query: (newPlagiarismAssessment) => {
                 const isFormData = newPlagiarismAssessment instanceof FormData;
                 return {
-                    url: '/plagiarism-assessment',
+                    url: '/plagiarism_assessment',
                     method: 'POST',
                     body: newPlagiarismAssessment,
                     headers: isFormData ? undefined : { 'Content-Type': 'application/json' },

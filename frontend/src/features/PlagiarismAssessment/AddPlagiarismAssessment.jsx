@@ -65,35 +65,26 @@ const AddPlagiarismAssessment = () => {
         }
     
         try {
-            let newPlagiarismAssessment;
+            const formData = new FormData();
     
             if (file) {
-                // Gdy przesyłany jest plik
-                const formData = new FormData();
                 formData.append("file", file);
-                formData.append("author", author);
-                formData.append("title", title);
-                formData.append("language", language);
-    
-                newPlagiarismAssessment = formData;
             } else {
-                // Gdy przesyłany jest tekst
-                newPlagiarismAssessment = {
-                    text,
-                    author,
-                    title,
-                    language,
-                };
+                formData.append("text", text);
             }
+            formData.append("author", author);
+            formData.append("title", title);
+            formData.append("language", language);
     
-            await addNewPlagiarismAssessment(newPlagiarismAssessment).unwrap();
+            // Wysłanie żądania
+            await addNewPlagiarismAssessment(formData).unwrap();
             alert("Praca została dodana pomyślnie!");
             navigate("/dash/history");
         } catch (err) {
             if (err.status === 400) {
                 alert("Serwer odrzucił żądanie. Upewnij się, że przesyłasz poprawne dane.");
             } else {
-                alert("Wystąpił nieoczekiwany błąd.");
+                alert("Wystąpił nieoczekiwany błąd. Spróbuj ponownie.");
             }
             console.error("Błąd:", err);
         }

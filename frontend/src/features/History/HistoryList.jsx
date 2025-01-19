@@ -27,8 +27,6 @@ const HistoryList = () => {
     }
 
     if (isSuccess) {
-        // console.log(histories.ids.length)
-        console.log(histories.ids)
         const tableContent = histories.ids.length > 0
             ? histories.ids.map(historyId => <History key={historyId} id={historyId} />)
             : null
@@ -40,7 +38,7 @@ const HistoryList = () => {
                     <tr>
                         <th>ID</th>
                         <th>Tytuł</th>
-                        <th>Ocena</th>
+                        <th>Plagiat</th>
                         {/* <th>Treść</th> */}
                         <th>Autor</th>
                         <th>Przesłano</th>
