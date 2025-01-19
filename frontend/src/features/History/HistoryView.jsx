@@ -61,7 +61,7 @@ const HistoryView = () => {
                     </div>
                     <div className="text-center lg:text-right">
                         <div className={progressBarColor} style={{ "--value": 100 - history.entities[assessmentId].rating * 100, "--size": "12rem", "--thickness": "2rem" }} role="progressbar">
-                            {history.entities[assessmentId].rating}% <br />plagiatu
+                            {history.entities[assessmentId].rating.toFixed(5) * 100}% <br />plagiatu
                         </div>
                     </div>
                 </div>

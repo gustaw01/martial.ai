@@ -75,7 +75,7 @@ const PlagiarismAssessment = ({ plagiarismAssessment = {} }) => {
                 <>
                     <h3 className="font-bold text-lg">Treść po Polsku</h3>
                     <span className="label-text">Data: {sent_at}</span> <br />
-                    <span className="label-text">Ocena: {rating}</span> <br /><br /><br />
+                    <span className="label-text">Ocena: {rating.toFixed(5) * 100} %</span> <br /><br /><br />
                     <div className="left-0">
                         {plagiarisms.map((plagiarism, index) => (
                             <PlagiarismModal key={index} plagiarism={plagiarism} />
@@ -83,7 +83,7 @@ const PlagiarismAssessment = ({ plagiarismAssessment = {} }) => {
                     </div>
                     <br /><br />
                     <h3 className="font-bold text-lg">Treść w innych językach</h3>
-                    <span className="label-text">Ocena: {rating_other_lang}</span> <br /><br /><br />
+                    <span className="label-text">Ocena: {rating_other_lang.toFixed(5) * 100} %</span> <br /><br /><br />
                     <div>
                         {plagiarisms_other_lang.map((plagiarism, index) => (
                             <PlagiarismModal key={index} plagiarism={plagiarism} />
