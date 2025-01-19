@@ -1,16 +1,17 @@
 import { useGetHistoriesQuery } from "./historyApiSlice";
 import AlertError from "../../components/AlertError";
-import { Link } from "react-router-dom";
-import Loading from "../../components/Loading";
+import { Link, useNavigate } from "react-router-dom";
 
 const getProgressBarColor = (rating) => {
-    if (rating <= 25) return "progress progress-error w-56";
-    if (rating <= 50) return "progress progress-warning w-56";
-    if (rating <= 75) return "progress progress-info w-56";
-    return "progress progress-success w-56";
-}
+    if (rating <= 0.25) return "progress progress-success w-full";
+    if (rating <= 0.50) return "progress progress-info w-full";
+    if (rating <= 0.75) return "progress progress-warning w-full";
+    return "progress progress-error w-full";
+};
 
 const BasicHistoryList = () => {
+    const navigate = useNavigate();
+
     const {
         data: histories,
         isLoading,
@@ -20,39 +21,48 @@ const BasicHistoryList = () => {
     } = useGetHistoriesQuery(undefined, {
         pollingInterval: 60000,
         refetchOnFocus: true,
-        refetchOnMountOrArgChange: true
-    })
+        refetchOnMountOrArgChange: true,
+    });
 
-    let content
+    const navigateToHistory = (assessmentId) => {
+        navigate(`/dash/history/${assessmentId}`);
+        window.location.reload(); // Dodanie odświeżania strony
+    };
+
+    let content;
 
     if (isLoading) {
-        content = <Loading />
+        // content = <Loading />
     }
 
     if (isError) {
-        content = <AlertError error={ error?.data?.message }/>
+        content = <AlertError error={error?.data?.message} />;
     }
 
     if (isSuccess) {
-        const historyItems = Object.values(histories.entities).map(history => {
+        const historyItems = Object.values(histories.entities).map((history) => {
             const progressBarColor = getProgressBarColor(history.rating);
             return (
-                <Link to={`/dash/history/${history.id}`} key={history.id}>
-                    <button className="btn btn-ghost" style={{ width: "100%" }}>
-                        {history.title}
-                        <progress className={progressBarColor} value={history.rating} max="100"></progress>
-                    </button>
-                </Link>
+                <button
+                    onClick={() => navigateToHistory(history.assessment_id)} // Strzałkowa funkcja zapobiega natychmiastowemu wywołaniu
+                    key={history.assessment_id}
+                    className="btn btn-ghost"
+                    style={{ width: "100%" }}
+                >
+                    {history.title}
+                    <progress className={progressBarColor} value={1 - history.rating} max="1"></progress>
+                </button>
             );
         });
 
         content = (
             <div className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-                { historyItems }
+                {historyItems}
             </div>
-        )
+        );
     }
 
-    return content
-}
-export default BasicHistoryList
+    return content;
+};
+
+export default BasicHistoryList;

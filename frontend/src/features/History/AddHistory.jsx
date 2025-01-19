@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useAddNewHistoryMutation } from "./historyApiSlice";
 import { useNavigate } from "react-router-dom";
 
+
+// TODO LANGAGE: Przejazywanie języka jako select w formularzu jako: pl, en, fr
 const AddHistory = () => {
     const navigate = useNavigate();
     const [addNewHistory, { isLoading }] = useAddNewHistoryMutation();

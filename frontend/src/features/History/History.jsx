@@ -17,7 +17,7 @@ const History = ({id = null}) => {
         return (
             <tr className="bg-base-200">
                 <td>
-                    {history.id}
+                    {history.assessment_id}
                 </td>
                 <td>
                     {history.title}
@@ -25,9 +25,9 @@ const History = ({id = null}) => {
                 <td>
                     {history.rating} %
                 </td>
-                <td>
+                {/* <td>
                     {history.message}
-                </td>
+                </td> */}
                 <td>
                     {history.author}
                 </td>

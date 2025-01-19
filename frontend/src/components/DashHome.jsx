@@ -9,7 +9,7 @@ const DashHome = () => {
                     <p className="py-6">
                         W systemie do weryfikacji prac pod kątem plagiatu. 
                     </p>
-                    <Link to="/dash/history/new" className="btn btn-primary">Zweryfikuj pracę</Link>
+                    <Link to="/dash/plagiarism/new" className="btn btn-primary">Zweryfikuj pracę</Link>
                 </div>
             </div>
         </div>
