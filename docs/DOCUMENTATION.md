@@ -368,8 +368,6 @@ CREATE TABLE plagiarisms (
 <br>
 
 
-## Frontend
-
 ## Testy
 
 Testy jednostkowe wykonane za pomocą biblioteki `pytest`.
