@@ -46,7 +46,7 @@ const PlagiarismModal = ({ plagiarism }) => {
                             </label>
                             <textarea
                                 className="textarea h-24 textarea-bordered"
-                                value={plagiarism.matched_sentence}
+                                value={plagiarism.matched_sentence || "Brak podobnego zdania w bazie danych"}
                                 readOnly
                             />
                         </div>
