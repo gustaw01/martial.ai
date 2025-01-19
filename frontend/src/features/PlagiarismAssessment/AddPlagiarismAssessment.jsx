@@ -64,7 +64,7 @@ const AddPlagiarismAssessment = () => {
             return;
         }
 
-        if (formData.file.type !== "application/pdf" && formData.file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+        if (file &&(formData.file.type !== "application/pdf" && formData.file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
             alert("Nieobsługiwany format pliku. Proszę wybrać plik PDF lub DOCX.");
             return;
         }
