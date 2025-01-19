@@ -63,6 +63,11 @@ const AddPlagiarismAssessment = () => {
             alert("Musisz przesłać **albo tekst**, **albo plik**, ale nie oba jednocześnie.");
             return;
         }
+
+        if (formData.file.type !== "application/pdf" && formData.file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+            alert("Nieobsługiwany format pliku. Proszę wybrać plik PDF lub DOCX.");
+            return;
+        }
     
         try {
             const formData = new FormData();

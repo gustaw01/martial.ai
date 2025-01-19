@@ -76,7 +76,7 @@ const PlagiarismAssessment = ({ plagiarismAssessment = {} }) => {
                     <h3 className="font-bold text-lg">Treść po Polsku</h3>
                     <span className="label-text">Data: {sent_at}</span> <br />
                     <span className="label-text">Ocena: {rating}</span> <br /><br /><br />
-                    <div>
+                    <div className="left-0">
                         {plagiarisms.map((plagiarism, index) => (
                             <PlagiarismModal key={index} plagiarism={plagiarism} />
                         ))}
