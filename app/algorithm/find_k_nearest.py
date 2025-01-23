@@ -12,7 +12,10 @@ def find_k_nearest(
     Function to find K closest vectors in the database given a vector
 
     vector: list[float]
+    n_articles: int
     k: int
+    vac_lenght: int
+    lang_to_exclue: str | None
 
     """
 
