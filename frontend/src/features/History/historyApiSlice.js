@@ -2,7 +2,9 @@ import { createSelector, createEntityAdapter } from "@reduxjs/toolkit";
 import { apiSlice } from "../../app/api/apiSlice";
 
 // Konfiguracja adaptera
-const historiesAdapter = createEntityAdapter();
+const historiesAdapter = createEntityAdapter({
+    selectId: (history) => history.assessment_id, // Użyj assessment_id jako identyfikatora
+});
 
 // Stan początkowy dla adaptera
 const initialState = historiesAdapter.getInitialState();
@@ -10,7 +12,7 @@ const initialState = historiesAdapter.getInitialState();
 export const historiesApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getHistories: builder.query({
-            query: () => '/history',
+            query: () => '/history?author=Test%20Author', // TODO: Zmienić na dynamiczne
             transformResponse: (responseData) => 
                 historiesAdapter.setAll(initialState, responseData),
             providesTags: (result, error, arg) =>
@@ -20,6 +22,18 @@ export const historiesApiSlice = apiSlice.injectEndpoints({
                         ...result.ids.map((id) => ({ type: 'History', id })),
                       ]
                     : [{ type: 'History', id: "LIST" }],
+        }),
+        getHistoryByAssessmentId: builder.query({
+            query: (assessmentId) => `/history?assessment_id=${assessmentId}`,
+            transformResponse: (responseData) => 
+                historiesAdapter.setAll(initialState, responseData),
+            providesTags: (result, error, arg) =>
+                result
+                    ? [
+                        { type: 'History', id: `ASSESSMENT_${arg}` },
+                        ...result.ids.map((id) => ({ type: 'History', id })),
+                      ]
+                    : [{ type: 'History', id: `ASSESSMENT_${arg}` }],
         }),
         addNewHistory: builder.mutation({
             query: (newHistory) => ({
@@ -73,6 +87,7 @@ export const historiesApiSlice = apiSlice.injectEndpoints({
 
 export const {
     useGetHistoriesQuery,
+    useGetHistoryByAssessmentIdQuery,
     useAddNewHistoryMutation,
     useUpdateHistoryMutation,
     useUploadHistoryPDFMutation,
